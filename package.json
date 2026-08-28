@@ -4,6 +4,6 @@
   "scripts": {
     "build": "npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend install && npm --prefix backend run build",
     "start": "NODE_ENV=production npm --prefix backend run start",
-    "migrate": "npm --prefix backend exec prisma migrate deploy"
+    "migrate": "cd backend && npx prisma migrate deploy"
   }
 }
