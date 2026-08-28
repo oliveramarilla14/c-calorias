@@ -5,6 +5,7 @@ import { requireAuth } from "./auth/auth.middleware.js";
 import { mealsRouter } from "./meals/meals.routes.js";
 import { weightsRouter } from "./weights/weights.routes.js";
 import { summaryRouter } from "./summary/summary.routes.js";
+import { uploadsRouter } from "./uploads/uploads.routes.js";
 
 export function createApp() {
   const app = express();
@@ -19,6 +20,7 @@ export function createApp() {
   app.use("/api/meals", requireAuth, mealsRouter);
   app.use("/api/weights", requireAuth, weightsRouter);
   app.use("/api/summary", requireAuth, summaryRouter);
+  app.use("/api/uploads", requireAuth, uploadsRouter);
 
   return app;
 }
