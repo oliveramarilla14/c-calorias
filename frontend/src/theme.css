@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&display=swap');
+
+:root {
+  --color-bg: #201e1d;
+  --color-surface: #2d2b2b;
+  --color-text: #f3f2f2;
+  --color-accent: #ec3013;
+  --color-accent-600: #dd2b0f;
+  --color-accent-700: #ff9783;
+  --color-divider: color-mix(in srgb, #f3f2f2 25%, transparent);
+  --color-neutral-300: #3a3737;
+  --color-neutral-800: #605d5d;
+  --color-muted: #7d7979;
+
+  --font-heading: "Archivo", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, h5, h6 { font-weight: 800; margin: 0; letter-spacing: -0.02em; }
+h6 { font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; }
+a { color: var(--color-accent); }
+a:hover { color: var(--color-accent-600); }
+button { font-family: inherit; }
+input, select, button, textarea { font-family: "Archivo", system-ui, sans-serif; }
+input[type="number"].np::-webkit-outer-spin-button,
+input[type="number"].np::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
