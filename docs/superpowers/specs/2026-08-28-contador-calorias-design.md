@@ -2,11 +2,12 @@
 
 ## Resumen
 
-Web app personal (single-user, sin login) para registrar comidas con
-descripción y calorías (calculadas por el usuario fuera de la app),
-ver el progreso diario contra un objetivo fijo de 2000 cal, revisar un
-resumen semanal comparativo, y llevar un seguimiento de peso semanal
-(recordatorio los viernes).
+Web app personal (single-user, protegida por PIN numérico ya que la
+app va a estar públicamente accesible en internet) para registrar
+comidas con descripción y calorías (calculadas por el usuario fuera de
+la app), ver el progreso diario contra un objetivo fijo de 2000 cal,
+revisar un resumen semanal comparativo, y llevar un seguimiento de
+peso semanal (recordatorio los viernes).
 
 ## Alcance v1
 
@@ -19,9 +20,11 @@ Incluye:
 - Registro y edición/borrado de peso semanal, con recordatorio visual
   los viernes si no se cargó peso esa semana
 - Histórico de peso
+- Acceso protegido por PIN numérico de 4 dígitos, con sesión recordada
 
 Fuera de alcance v1 (explícitamente no se construye ahora):
-- Multi-usuario / autenticación
+- Multi-usuario (sigue siendo una sola cuenta/PIN, no hay tabla de
+  usuarios ni registro de nuevas cuentas)
 - Registro de alimentos individuales / base de datos nutricional
 - Notificaciones push o recordatorios fuera de la app
 - Edición del objetivo calórico diario desde la UI (queda fijo en
@@ -65,6 +68,31 @@ constante de configuración: `DAILY_CALORIE_GOAL=2000`).
 La semana se calcula lunes→domingo a partir de `consumed_at` /
 `recorded_at`.
 
+## Autenticación
+
+App pública en internet protegida por un PIN numérico de 4 dígitos,
+sin tabla de usuarios:
+
+- El PIN (hasheado, ej. bcrypt) se guarda en una variable de entorno
+  del backend (`PIN_HASH`), no en la base de datos.
+- `POST /auth/login` recibe el PIN, lo compara contra el hash; si
+  coincide, emite una cookie de sesión `httpOnly`, `secure`,
+  `sameSite=lax` firmada (JWT o similar) con expiración de 30 días.
+- Todas las rutas de la API (`/meals`, `/weights`, `/summary`,
+  `/uploads`) requieren esa cookie de sesión válida; sin ella devuelven
+  401 y el frontend redirige a la pantalla de login.
+- **Rate limiting:** dado que un PIN de 4 dígitos tiene poca entropía
+  (10.000 combinaciones) y la app es pública, `POST /auth/login`
+  limita a 5 intentos fallidos por IP cada 15 minutos (429 al superarlo).
+- `POST /auth/logout` invalida la cookie (borra/expira del lado
+  cliente; si se usa JWT sin estado, simplemente se limpia la cookie).
+
+### 0. Login
+- Pantalla inicial si no hay sesión válida: input numérico de 4
+  dígitos, auto-submit al completar los 4 dígitos o botón "Entrar"
+- Mensaje de error si el PIN es incorrecto o si se superó el límite de
+  intentos (con tiempo de espera indicado)
+
 ## Pantallas
 
 ### 1. Hoy (home)
@@ -99,6 +127,9 @@ La semana se calcula lunes→domingo a partir de `consumed_at` /
 ## API (REST)
 
 ```
+POST   /auth/login                   { pin } -> setea cookie de sesión
+POST   /auth/logout                  limpia la cookie de sesión
+
 GET    /meals?date=YYYY-MM-DD       lista de comidas de un día
 GET    /meals?week=YYYY-MM-DD       lista de comidas de la semana que contiene esa fecha
 POST   /meals                        crear comida
@@ -129,13 +160,19 @@ POST   /uploads                      sube foto a R2, devuelve { photo_url }
   pero la comida quedó registrada.
 - Errores 5xx genéricos: mensaje de error no bloqueante (toast) con
   opción de reintentar.
+- 401 en cualquier request a la API (sesión inválida o expirada):
+  frontend redirige a la pantalla de login.
+- 429 en `/auth/login` (rate limit superado): frontend muestra mensaje
+  indicando que hay que esperar antes de reintentar.
 
 ## Testing
 
 - Backend: tests unitarios de la lógica de agregación semanal (cálculo
   de semana lunes-domingo, promedios por tipo, serie de N semanas) y
   tests de integración de los endpoints CRUD de `meals` y `weights`
-  contra una base de datos de test.
+  contra una base de datos de test. Tests de auth: login con PIN
+  correcto/incorrecto, rate limiting, y que rutas protegidas devuelvan
+  401 sin sesión.
 - Frontend: tests de componentes clave (formulario de comida, cálculo
   de "restante" en la vista Hoy) si el tiempo lo permite; no es
   bloqueante para v1.
