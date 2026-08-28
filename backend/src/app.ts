@@ -1,6 +1,8 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import { authRouter } from "./auth/auth.routes.js";
+import { requireAuth } from "./auth/auth.middleware.js";
+import { mealsRouter } from "./meals/meals.routes.js";
 
 export function createApp() {
   const app = express();
@@ -12,6 +14,7 @@ export function createApp() {
   });
 
   app.use("/api/auth", authRouter);
+  app.use("/api/meals", requireAuth, mealsRouter);
 
   return app;
 }
