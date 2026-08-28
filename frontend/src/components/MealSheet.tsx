@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../api";
 import { MEAL_TYPES, type Meal, type MealType } from "../types";
 
@@ -15,9 +15,20 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
   const [description, setDescription] = useState(meal?.description ?? "");
   const [calories, setCalories] = useState(meal ? String(meal.calories) : "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(meal?.photoUrl ?? null);
   const [photoWarning, setPhotoWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!photoFile) {
+      setPhotoPreview(meal?.photoUrl ?? null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(photoFile);
+    setPhotoPreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [photoFile, meal?.photoUrl]);
 
   async function save() {
     const parsedCalories = parseInt(calories, 10);
@@ -62,7 +73,7 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
   }
 
   return (
-    <div style={{ position: "absolute", inset: 0, zIndex: 20, background: "var(--color-bg)", display: "flex", flexDirection: "column", animation: "sheetUp 220ms ease-out" }}>
+    <div className="sheet-overlay">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "2px solid var(--color-divider)" }}>
         <h4>{meal ? "Editar comida" : "Registrar comida"}</h4>
         <button type="button" onClick={onClose} style={{ width: 44, height: 44, background: "transparent", border: 0, color: "var(--color-text)", cursor: "pointer" }}>
@@ -105,7 +116,14 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
         <div>
           <span style={{ display: "block", fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 7 }}>Foto (opcional)</span>
           <label style={{ display: "flex", alignItems: "center", gap: 14, border: "2px solid var(--color-divider)", padding: 12, cursor: "pointer" }}>
-            <span style={{ flex: 1, fontWeight: 800, fontSize: 14 }}>{photoFile?.name ?? "Agregar foto del plato"}</span>
+            {photoPreview ? (
+              <img src={photoPreview} alt="" style={{ width: 56, height: 56, flex: "none", objectFit: "cover" }} />
+            ) : (
+              <span style={{ width: 56, height: 56, flex: "none", background: "var(--color-neutral-300)" }} />
+            )}
+            <span style={{ flex: 1, fontWeight: 800, fontSize: 14 }}>
+              {photoFile?.name ?? (meal?.photoUrl ? "Cambiar foto" : "Agregar foto del plato")}
+            </span>
             <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} style={{ display: "none" }} />
           </label>
           {photoWarning && <span style={{ display: "block", marginTop: 6, fontSize: 12, color: "var(--color-accent)" }}>{photoWarning}</span>}

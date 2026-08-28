@@ -70,6 +70,21 @@ input[type="number"].np::-webkit-inner-spin-button { -webkit-appearance: none; m
 
 .desktop-sidebar { display: none; }
 
+.sheet-overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  z-index: 20;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  animation: sheetUp 220ms ease-out;
+}
+
 .theme-toggle {
   width: 36px;
   height: 36px;
@@ -109,6 +124,10 @@ input[type="number"].np::-webkit-inner-spin-button { -webkit-appearance: none; m
   .app-main {
     max-width: 720px;
     padding-bottom: 60px;
+  }
+
+  .sheet-overlay {
+    max-width: 720px;
   }
 
   .mobile-only { display: none !important; }

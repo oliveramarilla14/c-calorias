@@ -30,7 +30,7 @@ export function WeightSheet({ weight, onClose, onSaved }: { weight: Weight | nul
   }
 
   return (
-    <div style={{ position: "absolute", inset: 0, zIndex: 20, background: "var(--color-bg)", display: "flex", flexDirection: "column", animation: "sheetUp 220ms ease-out" }}>
+    <div className="sheet-overlay">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "2px solid var(--color-divider)" }}>
         <h4>{weight ? "Editar peso" : "Cargar peso"}</h4>
         <button type="button" onClick={onClose} style={{ width: 44, height: 44, background: "transparent", border: 0, color: "var(--color-text)", cursor: "pointer" }}>
