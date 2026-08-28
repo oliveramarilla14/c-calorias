@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Meal {
+  id          Int      @id @default(autoincrement())
+  type        String
+  description String
+  calories    Int
+  photoUrl    String?
+  consumedAt  DateTime @db.Date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("meals")
+}
+
+model Weight {
+  id         Int      @id @default(autoincrement())
+  weightKg   Decimal  @db.Decimal(5, 2)
+  recordedAt DateTime @db.Date
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("weights")
+}
