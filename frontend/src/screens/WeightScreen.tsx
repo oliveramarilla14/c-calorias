@@ -3,6 +3,7 @@ import { api } from "../api";
 import type { Weight } from "../types";
 import { WeightSheet } from "../components/WeightSheet";
 import { formatDate } from "../format";
+import { useBackButtonClose } from "../useBackButtonClose";
 
 export function WeightScreen({ sheetOpen, onCloseSheet }: { sheetOpen: boolean; onCloseSheet: () => void }) {
   const [weights, setWeights] = useState<Weight[]>([]);
@@ -16,16 +17,23 @@ export function WeightScreen({ sheetOpen, onCloseSheet }: { sheetOpen: boolean; 
     reload();
   }, [reload]);
 
+  const weightSheetVisible = sheetOpen || editing !== null;
+  function closeWeightSheet() {
+    setEditing(null);
+    onCloseSheet();
+  }
+  useBackButtonClose(weightSheetVisible, closeWeightSheet);
+
   if (weights.length === 0) {
     return (
       <div style={{ padding: 28, color: "var(--color-muted)" }}>
         Todavía no cargaste ningún peso.
-        {sheetOpen && (
+        {weightSheetVisible && (
           <WeightSheet
-            weight={null}
-            onClose={onCloseSheet}
+            weight={editing}
+            onClose={closeWeightSheet}
             onSaved={() => {
-              onCloseSheet();
+              closeWeightSheet();
               reload();
             }}
           />
@@ -103,16 +111,12 @@ export function WeightScreen({ sheetOpen, onCloseSheet }: { sheetOpen: boolean; 
           })}
       </section>
 
-      {(sheetOpen || editing) && (
+      {weightSheetVisible && (
         <WeightSheet
           weight={editing}
-          onClose={() => {
-            setEditing(null);
-            onCloseSheet();
-          }}
+          onClose={closeWeightSheet}
           onSaved={() => {
-            setEditing(null);
-            onCloseSheet();
+            closeWeightSheet();
             reload();
           }}
         />

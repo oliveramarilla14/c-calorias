@@ -3,6 +3,7 @@ import { api } from "../api";
 import type { Meal } from "../types";
 import { MealListItem } from "../components/MealListItem";
 import { MealSheet } from "../components/MealSheet";
+import { useBackButtonClose } from "../useBackButtonClose";
 
 export function TodayScreen({
   dailyGoal,
@@ -32,6 +33,13 @@ export function TodayScreen({
   const consumed = meals.reduce((sum, m) => sum + m.calories, 0);
   const pct = Math.min(100, Math.round((consumed / dailyGoal) * 100));
   const remaining = Math.max(0, dailyGoal - consumed);
+
+  const mealSheetVisible = sheetOpen || editing !== null;
+  function closeMealSheet() {
+    setEditing(null);
+    onCloseSheet();
+  }
+  useBackButtonClose(mealSheetVisible, closeMealSheet);
 
   return (
     <div>
@@ -89,13 +97,10 @@ export function TodayScreen({
         {meals.length === 0 && <div style={{ padding: "28px 20px", borderTop: "1px solid var(--color-neutral-300)", color: "var(--color-muted)" }}>Todavía no registraste nada hoy.</div>}
       </section>
 
-      {(sheetOpen || editing) && (
+      {mealSheetVisible && (
         <MealSheet
           meal={editing}
-          onClose={() => {
-            setEditing(null);
-            onCloseSheet();
-          }}
+          onClose={closeMealSheet}
           onSaved={() => {
             setEditing(null);
             onCloseSheet();
