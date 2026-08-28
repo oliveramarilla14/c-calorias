@@ -1,9 +1,12 @@
-function App() {
-  return (
-    <div>
-      <h1>PLATO</h1>
-    </div>
-  );
-}
+import { useState } from "react";
+import { LoginScreen } from "./screens/LoginScreen";
 
-export default App;
+export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  if (!loggedIn) {
+    return <LoginScreen onSuccess={() => setLoggedIn(true)} />;
+  }
+
+  return <div style={{ padding: 20 }}>Sesión iniciada.</div>;
+}
