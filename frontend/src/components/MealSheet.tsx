@@ -15,20 +15,25 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
   const [description, setDescription] = useState(meal?.description ?? "");
   const [calories, setCalories] = useState(meal ? String(meal.calories) : "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoRemoved, setPhotoRemoved] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(meal?.photoUrl ?? null);
   const [photoWarning, setPhotoWarning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!photoFile) {
-      setPhotoPreview(meal?.photoUrl ?? null);
-      return;
+    if (photoFile) {
+      const objectUrl = URL.createObjectURL(photoFile);
+      setPhotoPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
     }
-    const objectUrl = URL.createObjectURL(photoFile);
-    setPhotoPreview(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [photoFile, meal?.photoUrl]);
+    setPhotoPreview(photoRemoved ? null : (meal?.photoUrl ?? null));
+  }, [photoFile, photoRemoved, meal?.photoUrl]);
+
+  function removePhoto() {
+    setPhotoFile(null);
+    setPhotoRemoved(true);
+  }
 
   async function save() {
     const parsedCalories = parseInt(calories, 10);
@@ -44,7 +49,7 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
     setSaving(true);
     setError(null);
     setPhotoWarning(null);
-    let photoUrl = meal?.photoUrl ?? null;
+    let photoUrl: string | null = photoRemoved ? null : (meal?.photoUrl ?? null);
     if (photoFile) {
       try {
         photoUrl = await api.uploadPhoto(photoFile);
@@ -122,10 +127,27 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
               <span style={{ width: 56, height: 56, flex: "none", background: "var(--color-neutral-300)" }} />
             )}
             <span style={{ flex: 1, fontWeight: 800, fontSize: 14 }}>
-              {photoFile?.name ?? (meal?.photoUrl ? "Cambiar foto" : "Agregar foto del plato")}
+              {photoFile?.name ?? (photoPreview ? "Cambiar foto" : "Agregar foto del plato")}
             </span>
-            <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} style={{ display: "none" }} />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                setPhotoFile(e.target.files?.[0] ?? null);
+                setPhotoRemoved(false);
+              }}
+              style={{ display: "none" }}
+            />
           </label>
+          {photoPreview && (
+            <button
+              type="button"
+              onClick={removePhoto}
+              style={{ marginTop: 6, padding: 0, background: "transparent", border: 0, color: "var(--color-muted)", fontWeight: 800, fontSize: 12, textTransform: "uppercase", cursor: "pointer" }}
+            >
+              Quitar foto
+            </button>
+          )}
           {photoWarning && <span style={{ display: "block", marginTop: 6, fontSize: 12, color: "var(--color-accent)" }}>{photoWarning}</span>}
         </div>
       </div>
