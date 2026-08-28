@@ -44,6 +44,22 @@ describe("requireAuth", () => {
   });
 });
 
+describe("GET /api/auth/me", () => {
+  it("returns 401 without a session cookie", async () => {
+    const app = createApp();
+    const res = await request(app).get("/api/auth/me");
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 200 with a valid session cookie", async () => {
+    const app = createApp();
+    const agent = request.agent(app);
+    await agent.post("/api/auth/login").send({ pin: "1234" });
+    const res = await agent.get("/api/auth/me");
+    expect(res.status).toBe(200);
+  });
+});
+
 describe("rate limiting", () => {
   it("rate-limits after 5 failed attempts", async () => {
     const app = createApp();

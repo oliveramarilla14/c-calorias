@@ -7,7 +7,7 @@ export function verifyPin(pin: string): boolean {
 }
 
 export function signSession(): string {
-  return jwt.sign({ auth: true }, config.sessionSecret, { expiresIn: "30d" });
+  return jwt.sign({ auth: true }, config.sessionSecret, { expiresIn: "24h" });
 }
 
 export function verifySession(token: string): boolean {

@@ -6,22 +6,31 @@ export function WeightSheet({ weight, onClose, onSaved }: { weight: Weight | nul
   const [date, setDate] = useState(weight?.recordedAt ?? new Date().toISOString().slice(0, 10));
   const [kg, setKg] = useState(weight?.weightKg ?? "");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function save() {
     const value = parseFloat(kg);
-    if (!value) return;
-    setSaving(true);
-    if (weight) {
-      await api.updateWeight(weight.id, { weightKg: value, recordedAt: date });
-    } else {
-      await api.createWeight({ weightKg: value, recordedAt: date });
+    if (!value || value <= 0) {
+      setError("Ingresá un peso valido.");
+      return;
     }
-    setSaving(false);
-    onSaved();
+    setSaving(true);
+    setError(null);
+    try {
+      if (weight) {
+        await api.updateWeight(weight.id, { weightKg: value, recordedAt: date });
+      } else {
+        await api.createWeight({ weightKg: value, recordedAt: date });
+      }
+      onSaved();
+    } catch {
+      setError("No se pudo guardar el peso. Probá de nuevo.");
+      setSaving(false);
+    }
   }
 
   return (
-    <div style={{ position: "absolute", inset: 0, background: "var(--color-bg)", display: "flex", flexDirection: "column", animation: "sheetUp 220ms ease-out" }}>
+    <div style={{ position: "absolute", inset: 0, zIndex: 20, background: "var(--color-bg)", display: "flex", flexDirection: "column", animation: "sheetUp 220ms ease-out" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "2px solid var(--color-divider)" }}>
         <h4>{weight ? "Editar peso" : "Cargar peso"}</h4>
         <button type="button" onClick={onClose} style={{ width: 44, height: 44, background: "transparent", border: 0, color: "var(--color-text)", cursor: "pointer" }}>
@@ -49,13 +58,14 @@ export function WeightSheet({ weight, onClose, onSaved }: { weight: Weight | nul
         <p style={{ fontSize: 13, color: "var(--color-muted)" }}>Un registro por semana es suficiente. Los viernes te lo recordamos en Hoy.</p>
       </div>
       <div style={{ padding: "14px 20px", borderTop: "2px solid var(--color-divider)" }}>
+        {error && <div style={{ marginBottom: 10, fontSize: 13, fontWeight: 600, color: "var(--color-accent)" }}>{error}</div>}
         <button
           type="button"
           disabled={saving}
           onClick={save}
-          style={{ width: "100%", minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 16, cursor: "pointer" }}
+          style={{ width: "100%", minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 16, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
         >
-          Guardar peso
+          {saving ? "Guardando…" : "Guardar peso"}
         </button>
       </div>
     </div>

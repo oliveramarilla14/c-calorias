@@ -1,6 +1,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { verifyPin, signSession } from "./auth.service.js";
+import { requireAuth } from "./auth.middleware.js";
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -23,12 +24,16 @@ authRouter.post("/login", loginLimiter, (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000,
   });
   res.status(200).json({ ok: true });
 });
 
 authRouter.post("/logout", (_req, res) => {
   res.clearCookie("session");
+  res.status(200).json({ ok: true });
+});
+
+authRouter.get("/me", requireAuth, (_req, res) => {
   res.status(200).json({ ok: true });
 });

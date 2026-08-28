@@ -8,10 +8,22 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
   const [calories, setCalories] = useState(meal ? String(meal.calories) : "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoWarning, setPhotoWarning] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function save() {
+    const parsedCalories = parseInt(calories, 10);
+    if (!description.trim()) {
+      setError("Escribí una descripción.");
+      return;
+    }
+    if (!Number.isFinite(parsedCalories) || parsedCalories <= 0) {
+      setError("Ingresá una cantidad de calorías mayor a 0.");
+      return;
+    }
+
     setSaving(true);
+    setError(null);
     setPhotoWarning(null);
     let photoUrl = meal?.photoUrl ?? null;
     if (photoFile) {
@@ -23,22 +35,26 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
     }
     const input = {
       type,
-      description: description.trim() || "Sin descripción",
-      calories: parseInt(calories, 10) || 0,
+      description: description.trim(),
+      calories: parsedCalories,
       photoUrl,
       consumedAt: meal?.consumedAt ?? new Date().toISOString().slice(0, 10),
     };
-    if (meal) {
-      await api.updateMeal(meal.id, input);
-    } else {
-      await api.createMeal(input);
+    try {
+      if (meal) {
+        await api.updateMeal(meal.id, input);
+      } else {
+        await api.createMeal(input);
+      }
+      onSaved();
+    } catch {
+      setError("No se pudo guardar la comida. Probá de nuevo.");
+      setSaving(false);
     }
-    setSaving(false);
-    onSaved();
   }
 
   return (
-    <div style={{ position: "absolute", inset: 0, background: "var(--color-bg)", display: "flex", flexDirection: "column", animation: "sheetUp 220ms ease-out" }}>
+    <div style={{ position: "absolute", inset: 0, zIndex: 20, background: "var(--color-bg)", display: "flex", flexDirection: "column", animation: "sheetUp 220ms ease-out" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "2px solid var(--color-divider)" }}>
         <h4>{meal ? "Editar comida" : "Registrar comida"}</h4>
         <button type="button" onClick={onClose} style={{ width: 44, height: 44, background: "transparent", border: 0, color: "var(--color-text)", cursor: "pointer" }}>
@@ -87,18 +103,21 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
           {photoWarning && <span style={{ display: "block", marginTop: 6, fontSize: 12, color: "var(--color-accent)" }}>{photoWarning}</span>}
         </div>
       </div>
-      <div style={{ padding: "14px 20px", borderTop: "2px solid var(--color-divider)", display: "flex", gap: 10 }}>
-        <button type="button" onClick={onClose} style={{ minHeight: 52, padding: "0 18px", background: "transparent", border: "2px solid var(--color-divider)", color: "var(--color-text)", fontWeight: 800, cursor: "pointer" }}>
-          Cancelar
-        </button>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={save}
-          style={{ flex: 1, minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 16, cursor: "pointer" }}
-        >
-          Guardar comida
-        </button>
+      <div style={{ padding: "14px 20px", borderTop: "2px solid var(--color-divider)" }}>
+        {error && <div style={{ marginBottom: 10, fontSize: 13, fontWeight: 600, color: "var(--color-accent)" }}>{error}</div>}
+        <div style={{ display: "flex", gap: 10 }}>
+          <button type="button" onClick={onClose} style={{ minHeight: 52, padding: "0 18px", background: "transparent", border: "2px solid var(--color-divider)", color: "var(--color-text)", fontWeight: 800, cursor: "pointer" }}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={save}
+            style={{ flex: 1, minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 16, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
+          >
+            {saving ? "Guardando…" : "Guardar comida"}
+          </button>
+        </div>
       </div>
     </div>
   );

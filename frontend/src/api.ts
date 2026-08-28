@@ -30,6 +30,7 @@ export interface WeightInput {
 export const api = {
   login: (pin: string) => request<{ ok: true }>("/auth/login", { method: "POST", body: JSON.stringify({ pin }) }),
   logout: () => request<{ ok: true }>("/auth/logout", { method: "POST" }),
+  me: () => request<{ ok: true }>("/auth/me"),
 
   getMealsByDate: (date: string) => request<Meal[]>(`/meals?date=${date}`),
   getMealsByWeek: (weekDate: string) => request<Meal[]>(`/meals?week=${weekDate}`),

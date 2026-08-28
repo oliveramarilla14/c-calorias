@@ -4,7 +4,7 @@ import { TodayScreen } from "./screens/TodayScreen";
 import { WeekScreen } from "./screens/WeekScreen";
 import { WeightScreen } from "./screens/WeightScreen";
 import { BottomNav } from "./components/BottomNav";
-import { AuthError } from "./api";
+import { api, AuthError } from "./api";
 
 type Screen = "hoy" | "semana" | "peso";
 type Theme = "dark" | "light";
@@ -39,6 +39,7 @@ function ThemeIcon({ theme }: { theme: Theme }) {
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [screen, setScreen] = useState<Screen>("hoy");
   const [weightSheetOpen, setWeightSheetOpen] = useState(false);
   const [mealSheetOpen, setMealSheetOpen] = useState(false);
@@ -54,11 +55,23 @@ export default function App() {
     }
   }, [theme]);
 
+  useEffect(() => {
+    api
+      .me()
+      .then(() => setLoggedIn(true))
+      .catch(() => setLoggedIn(false))
+      .finally(() => setCheckingSession(false));
+  }, []);
+
   function handleAuthError(err: unknown) {
     if (err instanceof AuthError) setLoggedIn(false);
   }
 
   window.onunhandledrejection = (e) => handleAuthError(e.reason);
+
+  if (checkingSession) {
+    return <div style={{ minHeight: "100vh", background: "var(--color-bg)" }} />;
+  }
 
   if (!loggedIn) {
     return <LoginScreen onSuccess={() => setLoggedIn(true)} />;
