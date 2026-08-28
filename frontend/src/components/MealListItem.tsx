@@ -3,22 +3,30 @@ import type { Meal } from "../types";
 export function MealListItem({ meal, onEdit, onDelete }: { meal: Meal; onEdit: () => void; onDelete: () => void }) {
   return (
     <div style={{ display: "flex", gap: 14, alignItems: "flex-start", padding: "14px 20px", borderTop: "1px solid var(--color-neutral-300)" }}>
-      <div
-        style={{
-          width: 52,
-          height: 52,
-          flex: "none",
-          background: "var(--color-neutral-300)",
-          display: "flex",
-          alignItems: "flex-end",
-          padding: 5,
-          fontWeight: 800,
-          fontSize: 13,
-          color: "var(--color-muted)",
-        }}
-      >
-        {meal.type.slice(0, 3).toUpperCase()}
-      </div>
+      {meal.photoUrl ? (
+        <img
+          src={meal.photoUrl}
+          alt={meal.description}
+          style={{ width: 52, height: 52, flex: "none", objectFit: "cover", background: "var(--color-neutral-300)" }}
+        />
+      ) : (
+        <div
+          style={{
+            width: 52,
+            height: 52,
+            flex: "none",
+            background: "var(--color-neutral-300)",
+            display: "flex",
+            alignItems: "flex-end",
+            padding: 5,
+            fontWeight: 800,
+            fontSize: 13,
+            color: "var(--color-muted)",
+          }}
+        >
+          {meal.type.slice(0, 3).toUpperCase()}
+        </div>
+      )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.09em", textTransform: "uppercase", color: "var(--color-accent-700)" }}>
           {meal.type}

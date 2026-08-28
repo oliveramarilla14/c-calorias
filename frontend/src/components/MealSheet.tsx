@@ -46,7 +46,7 @@ export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClo
       description: description.trim(),
       calories: parsedCalories,
       photoUrl,
-      consumedAt: meal?.consumedAt ?? new Date().toISOString().slice(0, 10),
+      consumedAt: (meal?.consumedAt ?? new Date().toISOString()).slice(0, 10),
     };
     try {
       if (meal) {
