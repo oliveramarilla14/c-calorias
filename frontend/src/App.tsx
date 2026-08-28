@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoginScreen } from "./screens/LoginScreen";
 import { TodayScreen } from "./screens/TodayScreen";
 import { WeekScreen } from "./screens/WeekScreen";
@@ -7,14 +7,52 @@ import { BottomNav } from "./components/BottomNav";
 import { AuthError } from "./api";
 
 type Screen = "hoy" | "semana" | "peso";
+type Theme = "dark" | "light";
 
 const DAILY_GOAL = 2000;
+const THEME_STORAGE_KEY = "plato-theme";
+
+function readStoredTheme(): Theme {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return stored === "light" ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
+}
+
+function ThemeIcon({ theme }: { theme: Theme }) {
+  if (theme === "dark") {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+        <circle cx="12" cy="12" r="4.5" />
+        <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+      <path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z" />
+    </svg>
+  );
+}
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [screen, setScreen] = useState<Screen>("hoy");
   const [weightSheetOpen, setWeightSheetOpen] = useState(false);
+  const [mealSheetOpen, setMealSheetOpen] = useState(false);
   const [todayKey, setTodayKey] = useState(0); // bump to force TodayScreen to refetch after a weight save
+  const [theme, setTheme] = useState<Theme>(readStoredTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // ignore storage failures (private browsing, etc.)
+    }
+  }, [theme]);
 
   function handleAuthError(err: unknown) {
     if (err instanceof AuthError) setLoggedIn(false);
@@ -28,50 +66,135 @@ export default function App() {
 
   const isFriday = new Date().getDay() === 5;
 
+  function primaryAction() {
+    if (screen === "peso") {
+      setWeightSheetOpen(true);
+    } else if (screen === "hoy") {
+      setMealSheetOpen(true);
+    } else {
+      setScreen("hoy");
+      setMealSheetOpen(true);
+    }
+  }
+
+  const primaryLabel = screen === "peso" ? "Cargar peso" : "Registrar comida";
+
   return (
-    <div style={{ width: "100%", maxWidth: 430, minHeight: "100vh", margin: "0 auto", background: "var(--color-bg)", position: "relative", display: "flex", flexDirection: "column" }}>
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "14px 20px 10px", borderBottom: "2px solid var(--color-divider)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 18, height: 18, background: "var(--color-accent)" }} />
-          <span style={{ fontWeight: 800, fontSize: 19 }}>PLATO</span>
+    <div className="app-shell">
+      <aside className="desktop-sidebar">
+        <div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 18, height: 18, background: "var(--color-accent)" }} />
+              <span style={{ fontWeight: 800, fontSize: 19 }}>PLATO</span>
+            </div>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+              aria-label="Cambiar tema"
+            >
+              <ThemeIcon theme={theme} />
+            </button>
+          </div>
+          <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {([
+              ["hoy", "Hoy"],
+              ["semana", "Semana"],
+              ["peso", "Peso"],
+            ] as const).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setScreen(key)}
+                style={{
+                  textAlign: "left",
+                  minHeight: 44,
+                  padding: "0 12px",
+                  background: screen === key ? "var(--color-surface)" : "transparent",
+                  border: 0,
+                  borderLeftWidth: 3,
+                  borderLeftStyle: "solid",
+                  borderLeftColor: screen === key ? "var(--color-accent)" : "transparent",
+                  color: screen === key ? "var(--color-text)" : "var(--color-muted)",
+                  fontWeight: 800,
+                  fontSize: 13,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
         </div>
-      </header>
+        <button
+          type="button"
+          onClick={primaryAction}
+          style={{ minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 15, cursor: "pointer" }}
+        >
+          {primaryLabel}
+        </button>
+      </aside>
 
-      <main style={{ flex: 1, paddingBottom: 150 }}>
-        {screen === "hoy" && (
-          <TodayScreen
-            key={todayKey}
-            dailyGoal={DAILY_GOAL}
-            showWeightBanner={isFriday}
-            onOpenWeight={() => {
-              setScreen("peso");
-              setWeightSheetOpen(true);
-            }}
-          />
-        )}
-        {screen === "semana" && <WeekScreen weeksCount={8} />}
-        {screen === "peso" && (
-          <WeightScreen
-            sheetOpen={weightSheetOpen}
-            onCloseSheet={() => {
-              setWeightSheetOpen(false);
-              setTodayKey((k) => k + 1);
-            }}
-          />
-        )}
-      </main>
-
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: "var(--color-bg)", borderTop: "2px solid var(--color-divider)" }}>
-        <div style={{ padding: "14px 20px" }}>
+      <div className="app-main">
+        <header
+          className="mobile-only"
+          style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "14px 20px 10px", borderBottom: "2px solid var(--color-divider)" }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 18, height: 18, background: "var(--color-accent)" }} />
+            <span style={{ fontWeight: 800, fontSize: 19 }}>PLATO</span>
+          </div>
           <button
             type="button"
-            onClick={() => (screen === "peso" ? setWeightSheetOpen(true) : setScreen("hoy"))}
-            style={{ display: "block", width: "100%", minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 16, cursor: "pointer" }}
+            className="theme-toggle"
+            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+            aria-label="Cambiar tema"
           >
-            {screen === "peso" ? "Cargar peso" : "Registrar comida"}
+            <ThemeIcon theme={theme} />
           </button>
+        </header>
+
+        <main style={{ flex: 1, paddingBottom: 150 }}>
+          {screen === "hoy" && (
+            <TodayScreen
+              key={todayKey}
+              dailyGoal={DAILY_GOAL}
+              showWeightBanner={isFriday}
+              onOpenWeight={() => {
+                setScreen("peso");
+                setWeightSheetOpen(true);
+              }}
+              sheetOpen={mealSheetOpen}
+              onCloseSheet={() => setMealSheetOpen(false)}
+            />
+          )}
+          {screen === "semana" && <WeekScreen weeksCount={8} />}
+          {screen === "peso" && (
+            <WeightScreen
+              sheetOpen={weightSheetOpen}
+              onCloseSheet={() => {
+                setWeightSheetOpen(false);
+                setTodayKey((k) => k + 1);
+              }}
+            />
+          )}
+        </main>
+
+        <div className="mobile-only" style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: "var(--color-bg)", borderTop: "2px solid var(--color-divider)" }}>
+          <div style={{ padding: "14px 20px" }}>
+            <button
+              type="button"
+              onClick={primaryAction}
+              style={{ display: "block", width: "100%", minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 16, cursor: "pointer" }}
+            >
+              {primaryLabel}
+            </button>
+          </div>
+          <BottomNav screen={screen} onChange={setScreen} />
         </div>
-        <BottomNav screen={screen} onChange={setScreen} />
       </div>
     </div>
   );

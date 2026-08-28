@@ -13,6 +13,20 @@
   --color-muted: #7d7979;
 
   --font-heading: "Archivo", system-ui, sans-serif;
+  --sidebar-width: 240px;
+}
+
+:root[data-theme="light"] {
+  --color-bg: #f5f4f3;
+  --color-surface: #ffffff;
+  --color-text: #201e1d;
+  --color-accent: #ec3013;
+  --color-accent-600: #dd2b0f;
+  --color-accent-700: #ae1800;
+  --color-divider: color-mix(in srgb, #201e1d 16%, transparent);
+  --color-neutral-300: #e6e3e3;
+  --color-neutral-800: #444141;
+  --color-muted: #7d7979;
 }
 
 * { box-sizing: border-box; }
@@ -34,3 +48,70 @@ input[type="number"].np::-webkit-outer-spin-button,
 input[type="number"].np::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* — responsive shell — */
+.app-shell {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.app-main {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.desktop-sidebar { display: none; }
+
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 2px solid var(--color-divider);
+  color: var(--color-text);
+  cursor: pointer;
+  flex: none;
+}
+.theme-toggle:hover { border-color: var(--color-accent); }
+
+@media (min-width: 880px) {
+  .app-shell {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    flex: none;
+    padding: 24px 20px;
+    border-right: 2px solid var(--color-divider);
+    position: sticky;
+    top: 0;
+  }
+
+  .app-main {
+    max-width: 720px;
+    padding-bottom: 60px;
+  }
+
+  .mobile-only { display: none !important; }
+}
+
+.desktop-only { display: none; }
+@media (min-width: 880px) {
+  .desktop-only { display: block; }
+}

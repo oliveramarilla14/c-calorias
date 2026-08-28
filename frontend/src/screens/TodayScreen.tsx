@@ -4,9 +4,20 @@ import type { Meal } from "../types";
 import { MealListItem } from "../components/MealListItem";
 import { MealSheet } from "../components/MealSheet";
 
-export function TodayScreen({ dailyGoal, showWeightBanner, onOpenWeight }: { dailyGoal: number; showWeightBanner: boolean; onOpenWeight: () => void }) {
+export function TodayScreen({
+  dailyGoal,
+  showWeightBanner,
+  onOpenWeight,
+  sheetOpen,
+  onCloseSheet,
+}: {
+  dailyGoal: number;
+  showWeightBanner: boolean;
+  onOpenWeight: () => void;
+  sheetOpen: boolean;
+  onCloseSheet: () => void;
+}) {
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<Meal | null>(null);
 
   const reload = useCallback(async () => {
@@ -68,10 +79,7 @@ export function TodayScreen({ dailyGoal, showWeightBanner, onOpenWeight }: { dai
           <MealListItem
             key={m.id}
             meal={m}
-            onEdit={() => {
-              setEditing(m);
-              setSheetOpen(true);
-            }}
+            onEdit={() => setEditing(m)}
             onDelete={async () => {
               await api.deleteMeal(m.id);
               reload();
@@ -81,25 +89,16 @@ export function TodayScreen({ dailyGoal, showWeightBanner, onOpenWeight }: { dai
         {meals.length === 0 && <div style={{ padding: "28px 20px", borderTop: "1px solid var(--color-neutral-300)", color: "var(--color-muted)" }}>Todavía no registraste nada hoy.</div>}
       </section>
 
-      <div style={{ position: "fixed", left: 0, right: 0, bottom: 70, padding: 14 }}>
-        <button
-          type="button"
-          onClick={() => {
-            setEditing(null);
-            setSheetOpen(true);
-          }}
-          style={{ display: "block", width: "100%", maxWidth: 430, margin: "0 auto", minHeight: 52, background: "var(--color-accent)", color: "var(--color-bg)", border: 0, fontWeight: 800, fontSize: 16, cursor: "pointer" }}
-        >
-          + Registrar comida
-        </button>
-      </div>
-
-      {sheetOpen && (
+      {(sheetOpen || editing) && (
         <MealSheet
           meal={editing}
-          onClose={() => setSheetOpen(false)}
+          onClose={() => {
+            setEditing(null);
+            onCloseSheet();
+          }}
           onSaved={() => {
-            setSheetOpen(false);
+            setEditing(null);
+            onCloseSheet();
             reload();
           }}
         />
