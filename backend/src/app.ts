@@ -4,6 +4,7 @@ import { authRouter } from "./auth/auth.routes.js";
 import { requireAuth } from "./auth/auth.middleware.js";
 import { mealsRouter } from "./meals/meals.routes.js";
 import { weightsRouter } from "./weights/weights.routes.js";
+import { summaryRouter } from "./summary/summary.routes.js";
 
 export function createApp() {
   const app = express();
@@ -17,6 +18,7 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/meals", requireAuth, mealsRouter);
   app.use("/api/weights", requireAuth, weightsRouter);
+  app.use("/api/summary", requireAuth, summaryRouter);
 
   return app;
 }
