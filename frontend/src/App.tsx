@@ -44,6 +44,7 @@ export default function App() {
   const [weightSheetOpen, setWeightSheetOpen] = useState(false);
   const [mealSheetOpen, setMealSheetOpen] = useState(false);
   const [todayKey, setTodayKey] = useState(0); // bump to force TodayScreen to refetch after a weight save
+  const [hasWeighedThisWeek, setHasWeighedThisWeek] = useState(true);
   const [theme, setTheme] = useState<Theme>(readStoredTheme);
 
   useEffect(() => {
@@ -62,6 +63,14 @@ export default function App() {
       .catch(() => setLoggedIn(false))
       .finally(() => setCheckingSession(false));
   }, []);
+
+  useEffect(() => {
+    if (!loggedIn) return;
+    api
+      .getWeeklySummary(1)
+      .then((summary) => setHasWeighedThisWeek(summary.hasWeighedThisWeek))
+      .catch(() => {});
+  }, [loggedIn, todayKey]);
 
   function handleAuthError(err: unknown) {
     if (err instanceof AuthError) setLoggedIn(false);
@@ -175,7 +184,7 @@ export default function App() {
             <TodayScreen
               key={todayKey}
               dailyGoal={DAILY_GOAL}
-              showWeightBanner={isFriday}
+              showWeightBanner={isFriday && !hasWeighedThisWeek}
               onOpenWeight={() => {
                 setScreen("peso");
                 setWeightSheetOpen(true);
@@ -196,7 +205,10 @@ export default function App() {
           )}
         </main>
 
-        <div className="mobile-only" style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: "var(--color-bg)", borderTop: "2px solid var(--color-divider)" }}>
+        <div
+          className="mobile-only"
+          style={{ position: "fixed", left: 0, right: 0, bottom: 0, maxWidth: 430, margin: "0 auto", background: "var(--color-bg)", borderTop: "2px solid var(--color-divider)" }}
+        >
           <div style={{ padding: "14px 20px" }}>
             <button
               type="button"

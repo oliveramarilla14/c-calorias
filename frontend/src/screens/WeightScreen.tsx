@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import type { Weight } from "../types";
 import { WeightSheet } from "../components/WeightSheet";
+import { formatDate } from "../format";
 
 export function WeightScreen({ sheetOpen, onCloseSheet }: { sheetOpen: boolean; onCloseSheet: () => void }) {
   const [weights, setWeights] = useState<Weight[]>([]);
@@ -46,7 +47,7 @@ export function WeightScreen({ sheetOpen, onCloseSheet }: { sheetOpen: boolean; 
   return (
     <div>
       <section style={{ padding: 20, borderBottom: "2px solid var(--color-divider)" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 6 }}>Último registro · {last.recordedAt}</div>
+        <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 6 }}>Último registro · {formatDate(last.recordedAt)}</div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
           <span style={{ fontWeight: 800, fontSize: 64 }}>{parseFloat(last.weightKg).toFixed(1)}</span>
           <span style={{ fontWeight: 600, fontSize: 18, color: "var(--color-muted)" }}>kg</span>
@@ -77,7 +78,7 @@ export function WeightScreen({ sheetOpen, onCloseSheet }: { sheetOpen: boolean; 
             const d = p ? parseFloat(w.weightKg) - parseFloat(p.weightKg) : null;
             return (
               <div key={w.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 0", borderTop: "1px solid var(--color-neutral-300)" }}>
-                <span style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>{w.recordedAt}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>{formatDate(w.recordedAt)}</span>
                 <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
                   <span style={{ fontWeight: 800, fontSize: 19 }}>{parseFloat(w.weightKg).toFixed(1)} kg</span>
                   <span style={{ fontWeight: 600, fontSize: 12, color: d !== null && d > 0 ? "var(--color-accent-700)" : "var(--color-muted)" }}>

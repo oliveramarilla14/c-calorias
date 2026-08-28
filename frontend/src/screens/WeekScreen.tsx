@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { WeeklySummary } from "../types";
+import { formatDate } from "../format";
 
 export function WeekScreen({ weeksCount }: { weeksCount: number }) {
   const [summary, setSummary] = useState<WeeklySummary | null>(null);
@@ -18,7 +19,7 @@ export function WeekScreen({ weeksCount }: { weeksCount: number }) {
     <div>
       <section style={{ padding: 20, borderBottom: "2px solid var(--color-divider)" }}>
         <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 6 }}>
-          Semana actual · {summary.weekStart} – {summary.weekEnd}
+          Semana actual · {formatDate(summary.weekStart)} – {formatDate(summary.weekEnd)}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--color-divider)" }}>
           <div style={{ background: "var(--color-bg)", paddingRight: 14 }}>

@@ -2,8 +2,16 @@ import { useState } from "react";
 import { api } from "../api";
 import { MEAL_TYPES, type Meal, type MealType } from "../types";
 
+function defaultMealTypeForNow(): MealType {
+  const hour = new Date().getHours();
+  if (hour >= 8 && hour < 12) return "Desayuno";
+  if (hour >= 12 && hour < 17) return "Almuerzo";
+  if (hour >= 17 && hour < 20) return "Merienda";
+  return "Cena";
+}
+
 export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClose: () => void; onSaved: () => void }) {
-  const [type, setType] = useState<MealType>(meal?.type ?? "Almuerzo");
+  const [type, setType] = useState<MealType>(meal?.type ?? defaultMealTypeForNow());
   const [description, setDescription] = useState(meal?.description ?? "");
   const [calories, setCalories] = useState(meal ? String(meal.calories) : "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
