@@ -28,7 +28,7 @@ function extensionForMimeType(mimetype: string): string {
 }
 
 export async function transcribeAudio(buffer: Buffer, mimetype: string): Promise<string> {
-  const file = new File([buffer], `audio.${extensionForMimeType(mimetype)}`, { type: mimetype });
+  const file = new File([new Uint8Array(buffer)], `audio.${extensionForMimeType(mimetype)}`, { type: mimetype });
   try {
     const transcription = await (await client()).audio.transcriptions.create({ file, model: "whisper-1" });
     return transcription.text;
