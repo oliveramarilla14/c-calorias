@@ -4,6 +4,24 @@ import type { AiMealDraft } from "../types";
 
 type Status = "idle" | "recording" | "loading" | "error";
 
+function pickMimeType(): string | undefined {
+  const candidates = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+  for (const candidate of candidates) {
+    if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported?.(candidate)) {
+      return candidate;
+    }
+  }
+  return undefined;
+}
+
+function extensionForMimeType(mimeType: string): string {
+  const base = mimeType.split(";")[0].trim().toLowerCase();
+  if (base === "audio/webm") return "webm";
+  if (base === "audio/mp4") return "mp4";
+  if (base === "audio/ogg") return "ogg";
+  return "webm";
+}
+
 export function MicIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -58,7 +76,8 @@ export function AiMealCapture({ onClose, onDraft }: { onClose: () => void; onDra
       return;
     }
     try {
-      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      const mimeType = pickMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       streamRef.current = stream;
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
@@ -67,8 +86,9 @@ export function AiMealCapture({ onClose, onDraft }: { onClose: () => void; onDra
       recorder.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        void submitAudio(blob);
+        const actualMimeType = recorder.mimeType || mimeType || "audio/webm";
+        const blob = new Blob(chunksRef.current, { type: actualMimeType });
+        void submitAudio(blob, `audio.${extensionForMimeType(actualMimeType)}`);
       };
       mediaRecorderRef.current = recorder;
       recorder.start();
@@ -88,10 +108,10 @@ export function AiMealCapture({ onClose, onDraft }: { onClose: () => void; onDra
     mediaRecorderRef.current?.stop();
   }
 
-  async function submitAudio(blob: Blob) {
+  async function submitAudio(blob: Blob, filename: string) {
     setStatus("loading");
     try {
-      const draft = await api.parseMealFromAudio(blob);
+      const draft = await api.parseMealFromAudio(blob, filename);
       onDraft(draft);
     } catch {
       setError("No se pudo interpretar el audio. Probá de nuevo o cargalo manualmente.");

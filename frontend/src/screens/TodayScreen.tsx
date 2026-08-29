@@ -44,6 +44,7 @@ export function TodayScreen({
     onCloseSheet();
   }
   useBackButtonClose(mealSheetVisible, closeMealSheet);
+  useBackButtonClose(aiCaptureOpen, () => setAiCaptureOpen(false));
 
   return (
     <div>

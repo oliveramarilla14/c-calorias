@@ -17,8 +17,16 @@ const mealGuessSchema = z.object({
 
 export type MealGuess = z.infer<typeof mealGuessSchema>;
 
+function extensionForMimeType(mimetype: string): string {
+  const base = mimetype.split(";")[0].trim().toLowerCase();
+  if (base === "audio/webm") return "webm";
+  if (base === "audio/mp4" || base === "audio/m4a" || base === "audio/x-m4a") return "mp4";
+  if (base === "audio/ogg") return "ogg";
+  return "webm";
+}
+
 export async function transcribeAudio(buffer: Buffer, mimetype: string): Promise<string> {
-  const file = new File([buffer], "audio.webm", { type: mimetype });
+  const file = new File([buffer], `audio.${extensionForMimeType(mimetype)}`, { type: mimetype });
   try {
     const transcription = await client().audio.transcriptions.create({ file, model: "whisper-1" });
     return transcription.text;

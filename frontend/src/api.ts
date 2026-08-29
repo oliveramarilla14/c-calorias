@@ -54,9 +54,9 @@ export const api = {
     return photo_url;
   },
 
-  parseMealFromAudio: (blob: Blob) => {
+  parseMealFromAudio: (blob: Blob, filename: string = "audio.webm") => {
     const form = new FormData();
-    form.append("audio", blob, "audio.webm");
+    form.append("audio", blob, filename);
     return request<AiMealDraft>("/ai/parse-meal", { method: "POST", body: form });
   },
 
