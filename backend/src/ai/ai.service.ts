@@ -5,7 +5,9 @@ import { MEAL_TYPES } from "../meals/meals.service.js";
 
 export class AiParseError extends Error {}
 
-const client = new OpenAI({ apiKey: config.openaiApiKey });
+function client(): OpenAI {
+  return new OpenAI({ apiKey: config.openaiApiKey });
+}
 
 const mealGuessSchema = z.object({
   type: z.enum(MEAL_TYPES),
@@ -18,7 +20,7 @@ export type MealGuess = z.infer<typeof mealGuessSchema>;
 export async function transcribeAudio(buffer: Buffer, mimetype: string): Promise<string> {
   const file = new File([buffer], "audio.webm", { type: mimetype });
   try {
-    const transcription = await client.audio.transcriptions.create({ file, model: "whisper-1" });
+    const transcription = await client().audio.transcriptions.create({ file, model: "whisper-1" });
     return transcription.text;
   } catch (err) {
     throw new AiParseError(`transcription_failed: ${(err as Error).message}`);
@@ -28,7 +30,7 @@ export async function transcribeAudio(buffer: Buffer, mimetype: string): Promise
 export async function interpretMealText(text: string): Promise<MealGuess> {
   let raw: string | null;
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await client().chat.completions.create({
       model: "gpt-4o-mini",
       response_format: {
         type: "json_schema",
