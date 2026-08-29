@@ -1,4 +1,4 @@
-import type { Meal, MealType, Weight, WeeklySummary } from "./types";
+import type { AiMealDraft, Meal, MealType, Weight, WeeklySummary } from "./types";
 
 export class AuthError extends Error {}
 
@@ -52,5 +52,17 @@ export const api = {
     form.append("photo", file);
     const { photo_url } = await request<{ photo_url: string }>("/uploads", { method: "POST", body: form });
     return photo_url;
+  },
+
+  parseMealFromAudio: (blob: Blob) => {
+    const form = new FormData();
+    form.append("audio", blob, "audio.webm");
+    return request<AiMealDraft>("/ai/parse-meal", { method: "POST", body: form });
+  },
+
+  parseMealFromText: (text: string) => {
+    const form = new FormData();
+    form.append("text", text);
+    return request<AiMealDraft>("/ai/parse-meal", { method: "POST", body: form });
   },
 };

@@ -10,6 +10,13 @@ export interface Meal {
   consumedAt: string;
 }
 
+export interface AiMealDraft {
+  type: MealType;
+  description: string;
+  calories: number;
+  transcript?: string;
+}
+
 export interface Weight {
   id: number;
   weightKg: string; // Prisma Decimal serializes as string
