@@ -35,4 +35,7 @@ export const config = {
   get r2PublicUrl() {
     return required("R2_PUBLIC_URL");
   },
+  get openaiApiKey() {
+    return required("OPENAI_API_KEY");
+  },
 };
