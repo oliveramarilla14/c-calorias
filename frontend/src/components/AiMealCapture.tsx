@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import type { AiMealDraft } from "../types";
 
@@ -19,6 +19,7 @@ export function AiMealCapture({ onClose, onDraft }: { onClose: () => void; onDra
   const [error, setError] = useState<string | null>(null);
   const [recordSeconds, setRecordSeconds] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
   const autoStopRef = useRef<number | null>(null);
@@ -30,17 +31,42 @@ export function AiMealCapture({ onClose, onDraft }: { onClose: () => void; onDra
     autoStopRef.current = null;
   }
 
+  // Ensure the mic is released and no pending timers/callbacks fire if the
+  // component is unmounted (e.g. parent closes the modal) mid-recording.
+  useEffect(() => {
+    return () => {
+      stopTimers();
+      // Detach handlers so a stray stop event can't trigger submitAudio/onDraft
+      // after the component is gone.
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.ondataavailable = null;
+        mediaRecorderRef.current.onstop = null;
+      }
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
+  }, []);
+
   async function startRecording() {
     setError(null);
+    let stream: MediaStream;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setError("No se pudo acceder al micrófono. Revisá los permisos del navegador.");
+      setStatus("error");
+      return;
+    }
+    try {
       const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      streamRef.current = stream;
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
       recorder.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
         void submitAudio(blob);
       };
@@ -51,7 +77,8 @@ export function AiMealCapture({ onClose, onDraft }: { onClose: () => void; onDra
       timerRef.current = window.setInterval(() => setRecordSeconds((s) => s + 1), 1000);
       autoStopRef.current = window.setTimeout(() => stopRecording(), 60000);
     } catch {
-      setError("No se pudo acceder al micrófono. Revisá los permisos del navegador.");
+      stream.getTracks().forEach((t) => t.stop());
+      setError("No se pudo iniciar la grabación en este navegador.");
       setStatus("error");
     }
   }
