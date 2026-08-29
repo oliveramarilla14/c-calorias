@@ -17,6 +17,16 @@ export interface AiMealDraft {
   transcript?: string;
 }
 
+export interface AiKeyStatus {
+  configured: boolean;
+  preview: string | null;
+  source: "db" | "env" | null;
+}
+
+export interface Settings {
+  ai: AiKeyStatus;
+}
+
 export interface Weight {
   id: number;
   weightKg: string; // Prisma Decimal serializes as string

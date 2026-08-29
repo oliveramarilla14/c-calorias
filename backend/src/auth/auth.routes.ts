@@ -13,9 +13,9 @@ const loginLimiter = rateLimit({
 
 export const authRouter = Router();
 
-authRouter.post("/login", loginLimiter, (req, res) => {
+authRouter.post("/login", loginLimiter, async (req, res) => {
   const pin = String(req.body?.pin ?? "");
-  if (!/^\d{4}$/.test(pin) || !verifyPin(pin)) {
+  if (!/^\d{4}$/.test(pin) || !(await verifyPin(pin))) {
     res.status(401).json({ error: "invalid_pin" });
     return;
   }

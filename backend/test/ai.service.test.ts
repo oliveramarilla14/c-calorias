@@ -76,11 +76,11 @@ describe("interpretMealText", () => {
 });
 
 describe("lazy API key validation", () => {
-  it("throws Error when OPENAI_API_KEY is unset at call time", async () => {
+  it("throws AiParseError when no API key is configured at call time", async () => {
     const saved = process.env.OPENAI_API_KEY;
     try {
       delete process.env.OPENAI_API_KEY;
-      await expect(transcribeAudio(Buffer.from("fake-audio"), "audio/webm")).rejects.toThrow("Missing required env var OPENAI_API_KEY");
+      await expect(transcribeAudio(Buffer.from("fake-audio"), "audio/webm")).rejects.toBeInstanceOf(AiParseError);
     } finally {
       process.env.OPENAI_API_KEY = saved;
     }

@@ -1,12 +1,14 @@
 import OpenAI from "openai";
 import { z } from "zod";
-import { config } from "../config.js";
 import { MEAL_TYPES } from "../meals/meals.service.js";
+import { getOpenAiApiKey } from "../settings/settings.service.js";
 
 export class AiParseError extends Error {}
 
-function client(): OpenAI {
-  return new OpenAI({ apiKey: config.openaiApiKey });
+async function client(): Promise<OpenAI> {
+  const apiKey = await getOpenAiApiKey();
+  if (!apiKey) throw new AiParseError("ai_not_configured");
+  return new OpenAI({ apiKey });
 }
 
 const mealGuessSchema = z.object({
@@ -28,7 +30,7 @@ function extensionForMimeType(mimetype: string): string {
 export async function transcribeAudio(buffer: Buffer, mimetype: string): Promise<string> {
   const file = new File([buffer], `audio.${extensionForMimeType(mimetype)}`, { type: mimetype });
   try {
-    const transcription = await client().audio.transcriptions.create({ file, model: "whisper-1" });
+    const transcription = await (await client()).audio.transcriptions.create({ file, model: "whisper-1" });
     return transcription.text;
   } catch (err) {
     throw new AiParseError(`transcription_failed: ${(err as Error).message}`);
@@ -38,7 +40,7 @@ export async function transcribeAudio(buffer: Buffer, mimetype: string): Promise
 export async function interpretMealText(text: string): Promise<MealGuess> {
   let raw: string | null;
   try {
-    const completion = await client().chat.completions.create({
+    const completion = await (await client()).chat.completions.create({
       model: "gpt-4o-mini",
       response_format: {
         type: "json_schema",

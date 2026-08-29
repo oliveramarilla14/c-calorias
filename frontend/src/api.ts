@@ -1,4 +1,4 @@
-import type { AiMealDraft, Meal, MealType, Weight, WeeklySummary } from "./types";
+import type { AiMealDraft, Meal, MealType, Settings, Weight, WeeklySummary } from "./types";
 
 export class AuthError extends Error {}
 
@@ -46,6 +46,13 @@ export const api = {
   deleteWeight: (id: number) => request<void>(`/weights/${id}`, { method: "DELETE" }),
 
   getWeeklySummary: (weeks: number) => request<WeeklySummary>(`/summary/weekly?weeks=${weeks}`),
+
+  getSettings: () => request<Settings>("/settings"),
+  updatePin: (currentPin: string, newPin: string) =>
+    request<{ ok: true }>("/settings/pin", { method: "PUT", body: JSON.stringify({ currentPin, newPin }) }),
+  updateAiKey: (apiKey: string) =>
+    request<Settings>("/settings/ai-key", { method: "PUT", body: JSON.stringify({ apiKey }) }),
+  deleteAiKey: () => request<Settings>("/settings/ai-key", { method: "DELETE" }),
 
   uploadPhoto: async (file: File): Promise<string> => {
     const form = new FormData();

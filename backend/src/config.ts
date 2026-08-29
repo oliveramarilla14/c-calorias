@@ -11,8 +11,8 @@ export const config = {
   get databaseUrl() {
     return required("DATABASE_URL");
   },
-  get pinHash() {
-    return required("PIN_HASH");
+  get pinHash(): string | undefined {
+    return process.env.PIN_HASH || undefined;
   },
   get sessionSecret() {
     return required("SESSION_SECRET");
@@ -35,7 +35,7 @@ export const config = {
   get r2PublicUrl() {
     return required("R2_PUBLIC_URL");
   },
-  get openaiApiKey() {
-    return required("OPENAI_API_KEY");
+  get openaiApiKey(): string | undefined {
+    return process.env.OPENAI_API_KEY || undefined;
   },
 };

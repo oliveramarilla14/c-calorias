@@ -20,6 +20,14 @@ model Meal {
   @@map("meals")
 }
 
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
 model Weight {
   id         Int      @id @default(autoincrement())
   weightKg   Decimal  @db.Decimal(5, 2)

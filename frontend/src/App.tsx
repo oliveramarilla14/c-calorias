@@ -4,6 +4,8 @@ import { TodayScreen } from "./screens/TodayScreen";
 import { WeekScreen } from "./screens/WeekScreen";
 import { WeightScreen } from "./screens/WeightScreen";
 import { BottomNav } from "./components/BottomNav";
+import { SettingsSheet } from "./components/SettingsSheet";
+import { useBackButtonClose } from "./useBackButtonClose";
 import { api, AuthError } from "./api";
 
 type Screen = "hoy" | "semana" | "peso";
@@ -37,6 +39,15 @@ function ThemeIcon({ theme }: { theme: Theme }) {
   );
 }
 
+function GearIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M19.4 13a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 010-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H13a1.6 1.6 0 001-1.5V3a2 2 0 014 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V13z" />
+    </svg>
+  );
+}
+
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -46,6 +57,8 @@ export default function App() {
   const [todayKey, setTodayKey] = useState(0); // bump to force TodayScreen to refetch after a weight save
   const [hasWeighedThisWeek, setHasWeighedThisWeek] = useState(true);
   const [theme, setTheme] = useState<Theme>(readStoredTheme);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  useBackButtonClose(settingsOpen, () => setSettingsOpen(false));
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -110,14 +123,24 @@ export default function App() {
               <div style={{ width: 18, height: 18, background: "var(--color-accent)" }} />
               <span style={{ fontWeight: 800, fontSize: 19 }}>PLATO</span>
             </div>
-            <button
-              type="button"
-              className="theme-toggle"
-              onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-              aria-label="Cambiar tema"
-            >
-              <ThemeIcon theme={theme} />
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <button
+                type="button"
+                className="theme-toggle"
+                onClick={() => setSettingsOpen(true)}
+                aria-label="Configuración"
+              >
+                <GearIcon />
+              </button>
+              <button
+                type="button"
+                className="theme-toggle"
+                onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+                aria-label="Cambiar tema"
+              >
+                <ThemeIcon theme={theme} />
+              </button>
+            </div>
           </div>
           <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {([
@@ -221,6 +244,8 @@ export default function App() {
           <BottomNav screen={screen} onChange={setScreen} />
         </div>
       </div>
+
+      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }

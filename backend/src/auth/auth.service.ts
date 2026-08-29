@@ -1,9 +1,12 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { config } from "../config.js";
+import { getPinHash } from "../settings/settings.service.js";
 
-export function verifyPin(pin: string): boolean {
-  return bcrypt.compareSync(pin, config.pinHash);
+export async function verifyPin(pin: string): Promise<boolean> {
+  const hash = await getPinHash();
+  if (!hash) return false;
+  return bcrypt.compareSync(pin, hash);
 }
 
 export function signSession(): string {
