@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../api";
-import type { Meal } from "../types";
+import type { Meal, AiMealDraft } from "../types";
 import { MealListItem } from "../components/MealListItem";
 import { MealSheet } from "../components/MealSheet";
+import { AiMealCapture, MicIcon } from "../components/AiMealCapture";
 import { useBackButtonClose } from "../useBackButtonClose";
 
 export function TodayScreen({
@@ -20,6 +21,8 @@ export function TodayScreen({
 }) {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [editing, setEditing] = useState<Meal | null>(null);
+  const [aiCaptureOpen, setAiCaptureOpen] = useState(false);
+  const [aiDraft, setAiDraft] = useState<AiMealDraft | null>(null);
 
   const reload = useCallback(async () => {
     const today = new Date().toISOString().slice(0, 10);
@@ -34,12 +37,14 @@ export function TodayScreen({
   const pct = Math.min(100, Math.round((consumed / dailyGoal) * 100));
   const remaining = Math.max(0, dailyGoal - consumed);
 
-  const mealSheetVisible = sheetOpen || editing !== null;
+  const mealSheetVisible = sheetOpen || editing !== null || aiDraft !== null;
   function closeMealSheet() {
     setEditing(null);
+    setAiDraft(null);
     onCloseSheet();
   }
   useBackButtonClose(mealSheetVisible, closeMealSheet);
+  useBackButtonClose(aiCaptureOpen, () => setAiCaptureOpen(false));
 
   return (
     <div>
@@ -100,11 +105,29 @@ export function TodayScreen({
       {mealSheetVisible && (
         <MealSheet
           meal={editing}
+          draft={editing ? undefined : aiDraft}
           onClose={closeMealSheet}
           onSaved={() => {
             setEditing(null);
+            setAiDraft(null);
             onCloseSheet();
             reload();
+          }}
+        />
+      )}
+
+      <div className="ai-fab-wrap">
+        <button type="button" className="ai-fab" onClick={() => setAiCaptureOpen(true)} aria-label="Cargar comida por voz">
+          <MicIcon />
+        </button>
+      </div>
+
+      {aiCaptureOpen && (
+        <AiMealCapture
+          onClose={() => setAiCaptureOpen(false)}
+          onDraft={(draft) => {
+            setAiCaptureOpen(false);
+            setAiDraft(draft);
           }}
         />
       )}
