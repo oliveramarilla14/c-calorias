@@ -46,8 +46,15 @@ export function TodayScreen({
     setAiDraft(null);
     onCloseSheet();
   }
-  useBackButtonClose(mealSheetVisible, closeMealSheet);
-  useBackButtonClose(aiCaptureOpen, () => setAiCaptureOpen(false));
+  // A single back-button handler for both sheets. Using two separate
+  // useBackButtonClose instances made the AI capture -> draft handoff race
+  // on the shared history stack: closing the AI sheet ran history.back()
+  // while the meal sheet pushed a new entry, and the resulting popstate
+  // closed the freshly-opened draft sheet immediately.
+  useBackButtonClose(aiCaptureOpen || mealSheetVisible, () => {
+    if (aiCaptureOpen) setAiCaptureOpen(false);
+    else closeMealSheet();
+  });
 
   return (
     <div>

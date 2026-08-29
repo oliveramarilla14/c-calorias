@@ -8,6 +8,8 @@ import { useEffect, useRef } from "react";
  */
 export function useBackButtonClose(isOpen: boolean, onClose: () => void) {
   const pushedByUs = useRef(false);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -17,7 +19,7 @@ export function useBackButtonClose(isOpen: boolean, onClose: () => void) {
 
     function handlePopState() {
       pushedByUs.current = false;
-      onClose();
+      onCloseRef.current();
     }
 
     window.addEventListener("popstate", handlePopState);
