@@ -8,6 +8,7 @@ import { mealsRouter } from "./meals/meals.routes.js";
 import { weightsRouter } from "./weights/weights.routes.js";
 import { summaryRouter } from "./summary/summary.routes.js";
 import { uploadsRouter } from "./uploads/uploads.routes.js";
+import { aiRouter } from "./ai/ai.routes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +29,7 @@ export function createApp() {
   app.use("/api/weights", requireAuth, weightsRouter);
   app.use("/api/summary", requireAuth, summaryRouter);
   app.use("/api/uploads", requireAuth, uploadsRouter);
+  app.use("/api/ai", requireAuth, aiRouter);
 
   if (process.env.NODE_ENV === "production") {
     const frontendDist = path.join(__dirname, "../../frontend/dist");
