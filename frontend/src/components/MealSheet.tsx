@@ -27,6 +27,7 @@ export function MealSheet({
   const [type, setType] = useState<MealType>(meal?.type ?? draft?.type ?? defaultMealTypeForNow());
   const [description, setDescription] = useState(meal?.description ?? draft?.description ?? "");
   const [calories, setCalories] = useState(meal ? String(meal.calories) : draft ? String(draft.calories) : "");
+  const [date, setDate] = useState(meal?.consumedAt?.slice(0, 10) ?? defaultDate ?? localISODate());
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(meal?.photoUrl ?? null);
@@ -75,7 +76,7 @@ export function MealSheet({
       description: description.trim(),
       calories: parsedCalories,
       photoUrl,
-      consumedAt: meal?.consumedAt?.slice(0, 10) ?? defaultDate ?? localISODate(),
+      consumedAt: date,
     };
     try {
       if (meal) {
@@ -117,6 +118,16 @@ export function MealSheet({
             rows={2}
             placeholder="Pollo grillé con ensalada y papas al horno"
             style={{ width: "100%", padding: 12, fontSize: 16, background: "var(--color-surface)", color: "var(--color-text)", border: "2px solid var(--color-divider)", resize: "none" }}
+          />
+        </label>
+        <label>
+          <span style={{ display: "block", fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 7 }}>Fecha</span>
+          <input
+            type="date"
+            value={date}
+            max={localISODate()}
+            onChange={(e) => setDate(e.target.value || localISODate())}
+            style={{ width: "100%", minHeight: 50, padding: "0 12px", fontSize: 16, fontWeight: 600, background: "var(--color-surface)", color: "var(--color-text)", border: "2px solid var(--color-divider)" }}
           />
         </label>
         <label>
