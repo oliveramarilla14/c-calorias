@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
-import { MEAL_TYPES, type Meal, type MealType } from "../types";
+import { MEAL_TYPES, type AiMealDraft, type Meal, type MealType } from "../types";
 
 function defaultMealTypeForNow(): MealType {
   const hour = new Date().getHours();
@@ -10,10 +10,20 @@ function defaultMealTypeForNow(): MealType {
   return "Cena";
 }
 
-export function MealSheet({ meal, onClose, onSaved }: { meal: Meal | null; onClose: () => void; onSaved: () => void }) {
-  const [type, setType] = useState<MealType>(meal?.type ?? defaultMealTypeForNow());
-  const [description, setDescription] = useState(meal?.description ?? "");
-  const [calories, setCalories] = useState(meal ? String(meal.calories) : "");
+export function MealSheet({
+  meal,
+  draft,
+  onClose,
+  onSaved,
+}: {
+  meal: Meal | null;
+  draft?: Pick<AiMealDraft, "type" | "description" | "calories"> | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [type, setType] = useState<MealType>(meal?.type ?? draft?.type ?? defaultMealTypeForNow());
+  const [description, setDescription] = useState(meal?.description ?? draft?.description ?? "");
+  const [calories, setCalories] = useState(meal ? String(meal.calories) : draft ? String(draft.calories) : "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(meal?.photoUrl ?? null);
