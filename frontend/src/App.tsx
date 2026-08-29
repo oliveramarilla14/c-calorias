@@ -192,14 +192,24 @@ export default function App() {
             <div style={{ width: 18, height: 18, background: "var(--color-accent)" }} />
             <span style={{ fontWeight: 800, fontSize: 19 }}>PLATO</span>
           </div>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-            aria-label="Cambiar tema"
-          >
-            <ThemeIcon theme={theme} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Configuración"
+            >
+              <GearIcon />
+            </button>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+              aria-label="Cambiar tema"
+            >
+              <ThemeIcon theme={theme} />
+            </button>
+          </div>
         </header>
 
         <main style={{ flex: 1, paddingBottom: 150 }}>

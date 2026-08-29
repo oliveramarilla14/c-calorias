@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import { MEAL_TYPES, type AiMealDraft, type Meal, type MealType } from "../types";
+import { localISODate } from "../format";
 
 function defaultMealTypeForNow(): MealType {
   const hour = new Date().getHours();
@@ -13,11 +14,13 @@ function defaultMealTypeForNow(): MealType {
 export function MealSheet({
   meal,
   draft,
+  defaultDate,
   onClose,
   onSaved,
 }: {
   meal: Meal | null;
   draft?: Pick<AiMealDraft, "type" | "description" | "calories"> | null;
+  defaultDate?: string;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -72,7 +75,7 @@ export function MealSheet({
       description: description.trim(),
       calories: parsedCalories,
       photoUrl,
-      consumedAt: (meal?.consumedAt ?? new Date().toISOString()).slice(0, 10),
+      consumedAt: meal?.consumedAt?.slice(0, 10) ?? defaultDate ?? localISODate(),
     };
     try {
       if (meal) {

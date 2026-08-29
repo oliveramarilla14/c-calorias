@@ -47,7 +47,7 @@ input, select, button, textarea { font-family: "Archivo", system-ui, sans-serif;
 input[type="number"].np::-webkit-outer-spin-button,
 input[type="number"].np::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheetIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* — responsive shell — */
 .app-shell {
@@ -72,17 +72,13 @@ input[type="number"].np::-webkit-inner-spin-button { -webkit-appearance: none; m
 
 .sheet-overlay {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  inset: 0;
   width: 100%;
-  max-width: 430px;
   z-index: 20;
   background: var(--color-bg);
   display: flex;
   flex-direction: column;
-  animation: sheetUp 220ms ease-out;
+  animation: sheetIn 120ms ease-out;
 }
 
 .theme-toggle {
@@ -157,6 +153,7 @@ input[type="number"].np::-webkit-inner-spin-button { -webkit-appearance: none; m
 
   .sheet-overlay {
     max-width: 720px;
+    margin: 0 auto;
   }
 
   .mobile-only { display: none !important; }

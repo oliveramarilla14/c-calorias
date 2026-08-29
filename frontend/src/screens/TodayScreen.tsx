@@ -5,6 +5,7 @@ import { MealListItem } from "../components/MealListItem";
 import { MealSheet } from "../components/MealSheet";
 import { AiMealCapture, MicIcon } from "../components/AiMealCapture";
 import { useBackButtonClose } from "../useBackButtonClose";
+import { formatDate, localISODate } from "../format";
 
 export function TodayScreen({
   dailyGoal,
@@ -23,11 +24,13 @@ export function TodayScreen({
   const [editing, setEditing] = useState<Meal | null>(null);
   const [aiCaptureOpen, setAiCaptureOpen] = useState(false);
   const [aiDraft, setAiDraft] = useState<AiMealDraft | null>(null);
+  const [selectedDate, setSelectedDate] = useState(() => localISODate());
+
+  const isToday = selectedDate === localISODate();
 
   const reload = useCallback(async () => {
-    const today = new Date().toISOString().slice(0, 10);
-    setMeals(await api.getMealsByDate(today));
-  }, []);
+    setMeals(await api.getMealsByDate(selectedDate));
+  }, [selectedDate]);
 
   useEffect(() => {
     reload();
@@ -49,7 +52,26 @@ export function TodayScreen({
   return (
     <div>
       <section style={{ padding: "20px 20px 18px", borderBottom: "2px solid var(--color-divider)" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 6 }}>Consumido hoy</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>
+            {isToday ? "Consumido hoy" : "Consumido"}
+          </div>
+          <input
+            type="date"
+            value={selectedDate}
+            max={localISODate()}
+            onChange={(e) => setSelectedDate(e.target.value || localISODate())}
+            style={{
+              minHeight: 36,
+              padding: "0 10px",
+              fontSize: 13,
+              fontWeight: 700,
+              background: "var(--color-surface)",
+              color: "var(--color-text)",
+              border: "2px solid var(--color-divider)",
+            }}
+          />
+        </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
           <span style={{ fontWeight: 800, fontSize: 64, lineHeight: 0.9 }}>{consumed}</span>
           <span style={{ fontWeight: 600, fontSize: 16, color: "var(--color-muted)" }}>/ {dailyGoal} cal</span>
@@ -85,7 +107,7 @@ export function TodayScreen({
 
       <section>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px 10px" }}>
-          <h6>Comidas de hoy</h6>
+          <h6>{isToday ? "Comidas de hoy" : `Comidas del ${formatDate(selectedDate)}`}</h6>
           <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-muted)" }}>{meals.length} registros</span>
         </div>
         {meals.map((m) => (
@@ -99,12 +121,13 @@ export function TodayScreen({
             }}
           />
         ))}
-        {meals.length === 0 && <div style={{ padding: "28px 20px", borderTop: "1px solid var(--color-neutral-300)", color: "var(--color-muted)" }}>Todavía no registraste nada hoy.</div>}
+        {meals.length === 0 && <div style={{ padding: "28px 20px", borderTop: "1px solid var(--color-neutral-300)", color: "var(--color-muted)" }}>{isToday ? "Todavía no registraste nada hoy." : "No hay comidas registradas en esta fecha."}</div>}
       </section>
 
       {mealSheetVisible && (
         <MealSheet
           meal={editing}
+          defaultDate={selectedDate}
           draft={editing ? undefined : aiDraft}
           onClose={closeMealSheet}
           onSaved={() => {
