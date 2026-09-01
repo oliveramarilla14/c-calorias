@@ -5,7 +5,19 @@ import { MealListItem } from "../components/MealListItem";
 import { MealSheet } from "../components/MealSheet";
 import { AiMealCapture, MicIcon } from "../components/AiMealCapture";
 import { useBackButtonClose } from "../useBackButtonClose";
-import { formatDate, localISODate } from "../format";
+import { formatDate, localISODate, addDays } from "../format";
+
+const dayNavBtnStyle: React.CSSProperties = {
+  minWidth: 36,
+  minHeight: 36,
+  padding: 0,
+  fontSize: 16,
+  fontWeight: 800,
+  background: "var(--color-surface)",
+  color: "var(--color-text)",
+  border: "2px solid var(--color-divider)",
+  cursor: "pointer",
+};
 
 export function TodayScreen({
   dailyGoal,
@@ -63,21 +75,40 @@ export function TodayScreen({
           <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>
             {isToday ? "Consumido hoy" : "Consumido"}
           </div>
-          <input
-            type="date"
-            value={selectedDate}
-            max={localISODate()}
-            onChange={(e) => setSelectedDate(e.target.value || localISODate())}
-            style={{
-              minHeight: 36,
-              padding: "0 10px",
-              fontSize: 13,
-              fontWeight: 700,
-              background: "var(--color-surface)",
-              color: "var(--color-text)",
-              border: "2px solid var(--color-divider)",
-            }}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <button
+              type="button"
+              aria-label="Día anterior"
+              onClick={() => setSelectedDate((d) => addDays(d, -1))}
+              style={dayNavBtnStyle}
+            >
+              ‹
+            </button>
+            <input
+              type="date"
+              value={selectedDate}
+              max={localISODate()}
+              onChange={(e) => setSelectedDate(e.target.value || localISODate())}
+              style={{
+                minHeight: 36,
+                padding: "0 10px",
+                fontSize: 13,
+                fontWeight: 700,
+                background: "var(--color-surface)",
+                color: "var(--color-text)",
+                border: "2px solid var(--color-divider)",
+              }}
+            />
+            <button
+              type="button"
+              aria-label="Día siguiente"
+              disabled={isToday}
+              onClick={() => setSelectedDate((d) => addDays(d, 1))}
+              style={{ ...dayNavBtnStyle, opacity: isToday ? 0.4 : 1, cursor: isToday ? "default" : "pointer" }}
+            >
+              ›
+            </button>
+          </div>
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
           <span style={{ fontWeight: 800, fontSize: 64, lineHeight: 0.9 }}>{consumed}</span>
