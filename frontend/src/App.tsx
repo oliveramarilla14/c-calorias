@@ -7,6 +7,7 @@ import { BottomNav } from "./components/BottomNav";
 import { SettingsSheet } from "./components/SettingsSheet";
 import { useBackButtonClose } from "./useBackButtonClose";
 import { api, AuthError } from "./api";
+import { APP_VERSION } from "./version";
 
 type Screen = "hoy" | "semana" | "peso";
 type Theme = "dark" | "light";
@@ -119,9 +120,10 @@ export default function App() {
       <aside className="desktop-sidebar">
         <div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
               <div style={{ width: 18, height: 18, background: "var(--color-accent)" }} />
               <span style={{ fontWeight: 800, fontSize: 19 }}>PLATO</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted)" }}>v{APP_VERSION}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <button
@@ -188,9 +190,10 @@ export default function App() {
           className="mobile-only"
           style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "14px 20px 10px", borderBottom: "2px solid var(--color-divider)" }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
             <div style={{ width: 18, height: 18, background: "var(--color-accent)" }} />
             <span style={{ fontWeight: 800, fontSize: 19 }}>PLATO</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted)" }}>v{APP_VERSION}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <button

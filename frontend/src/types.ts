@@ -38,7 +38,9 @@ export interface WeeklySummary {
   weekEnd: string;
   weekTotal: number;
   weekAvg: number;
-  weeks: { weekStart: string; total: number }[];
+  weeks: { weekStart: string; avg: number }[];
   byType: { type: MealType; avg: number; count: number }[];
+  days: { date: string; total: number; weightKg: string | null }[];
+  topMeals: { id: number; type: MealType; description: string; calories: number; consumedAt: string }[];
   hasWeighedThisWeek: boolean;
 }
