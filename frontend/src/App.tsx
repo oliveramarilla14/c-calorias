@@ -12,7 +12,7 @@ import { APP_VERSION } from "./version";
 type Screen = "hoy" | "semana" | "peso";
 type Theme = "dark" | "light";
 
-const DAILY_GOAL = 2000;
+const DEFAULT_DAILY_GOAL = 2000;
 const THEME_STORAGE_KEY = "plato-theme";
 
 function readStoredTheme(): Theme {
@@ -57,6 +57,7 @@ export default function App() {
   const [mealSheetOpen, setMealSheetOpen] = useState(false);
   const [todayKey, setTodayKey] = useState(0); // bump to force TodayScreen to refetch after a weight save
   const [hasWeighedThisWeek, setHasWeighedThisWeek] = useState(true);
+  const [dailyGoal, setDailyGoal] = useState(DEFAULT_DAILY_GOAL);
   const [theme, setTheme] = useState<Theme>(readStoredTheme);
   const [settingsOpen, setSettingsOpen] = useState(false);
   useBackButtonClose(settingsOpen, () => setSettingsOpen(false));
@@ -82,7 +83,10 @@ export default function App() {
     if (!loggedIn) return;
     api
       .getWeeklySummary(1)
-      .then((summary) => setHasWeighedThisWeek(summary.hasWeighedThisWeek))
+      .then((summary) => {
+        setHasWeighedThisWeek(summary.hasWeighedThisWeek);
+        setDailyGoal(summary.dailyGoal);
+      })
       .catch(() => {});
   }, [loggedIn, todayKey]);
 
@@ -219,7 +223,7 @@ export default function App() {
           {screen === "hoy" && (
             <TodayScreen
               key={todayKey}
-              dailyGoal={DAILY_GOAL}
+              dailyGoal={dailyGoal}
               showWeightBanner={isFriday && !hasWeighedThisWeek}
               onOpenWeight={() => {
                 setScreen("peso");
@@ -229,7 +233,7 @@ export default function App() {
               onCloseSheet={() => setMealSheetOpen(false)}
             />
           )}
-          {screen === "semana" && <WeekScreen weeksCount={8} />}
+          {screen === "semana" && <WeekScreen key={todayKey} weeksCount={8} />}
           {screen === "peso" && (
             <WeightScreen
               sheetOpen={weightSheetOpen}
@@ -258,7 +262,15 @@ export default function App() {
         </div>
       </div>
 
-      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && (
+        <SettingsSheet
+          onClose={() => setSettingsOpen(false)}
+          onGoalsSaved={(goal) => {
+            setDailyGoal(goal);
+            setTodayKey((k) => k + 1);
+          }}
+        />
+      )}
     </div>
   );
 }

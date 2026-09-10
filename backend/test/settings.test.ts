@@ -65,6 +65,28 @@ describe("settings routes", () => {
     expect(await prisma.setting.findUnique({ where: { key: "openai_api_key" } })).toBeNull();
   });
 
+  it("reports the default calorie goals when none are stored", async () => {
+    const res = await agent.get("/api/settings").expect(200);
+    expect(res.body.goals).toEqual({ dailyGoal: 2000, maintenanceCalories: 2500 });
+  });
+
+  it("stores and returns custom calorie goals", async () => {
+    const res = await agent
+      .put("/api/settings/goals")
+      .send({ dailyGoal: 1800, maintenanceCalories: 2650 })
+      .expect(200);
+    expect(res.body.goals).toEqual({ dailyGoal: 1800, maintenanceCalories: 2650 });
+
+    const reread = await agent.get("/api/settings").expect(200);
+    expect(reread.body.goals).toEqual({ dailyGoal: 1800, maintenanceCalories: 2650 });
+  });
+
+  it("rejects goals outside the accepted range", async () => {
+    await agent.put("/api/settings/goals").send({ dailyGoal: 10, maintenanceCalories: 2500 }).expect(400);
+    await agent.put("/api/settings/goals").send({ dailyGoal: 2000, maintenanceCalories: 99999 }).expect(400);
+    await agent.put("/api/settings/goals").send({ dailyGoal: 2000 }).expect(400);
+  });
+
   it("rejects a PIN change with the wrong current PIN", async () => {
     await seedPin("1234");
     const res = await agent.put("/api/settings/pin").send({ currentPin: "9999", newPin: "2222" }).expect(400);

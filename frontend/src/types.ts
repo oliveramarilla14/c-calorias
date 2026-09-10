@@ -23,8 +23,20 @@ export interface AiKeyStatus {
   source: "db" | "env" | null;
 }
 
+export interface Goals {
+  dailyGoal: number;
+  maintenanceCalories: number;
+}
+
 export interface Settings {
   ai: AiKeyStatus;
+  goals: Goals;
+}
+
+export interface ExportRow {
+  date: string;
+  calories: number;
+  weightKg: string | null;
 }
 
 export interface Weight {
@@ -36,8 +48,17 @@ export interface Weight {
 export interface WeeklySummary {
   weekStart: string;
   weekEnd: string;
+  weekOffset: number;
+  isCurrentWeek: boolean;
+  daysCounted: number;
   weekTotal: number;
   weekAvg: number;
+  dailyGoal: number;
+  maintenanceCalories: number;
+  maintenanceTarget: number;
+  /** Positive = ate under maintenance over the counted days. */
+  deficit: number;
+  deficitKg: number;
   weeks: { weekStart: string; avg: number }[];
   byType: { type: MealType; avg: number; count: number }[];
   days: { date: string; total: number; weightKg: string | null }[];

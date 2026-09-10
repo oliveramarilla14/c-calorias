@@ -3,6 +3,16 @@ export function formatDate(iso: string): string {
   return `${d}/${m}/${y}`;
 }
 
+/** Thousands-separated integer, Spanish style: 12500 -> "12.500". */
+export function formatNumber(n: number): string {
+  return Math.round(n).toLocaleString("es-ES");
+}
+
+/** Kilograms with two decimals, Spanish style: 0.389 -> "0,39". */
+export function formatKg(n: number): string {
+  return n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 /** Local calendar date as YYYY-MM-DD (not UTC, unlike Date#toISOString). */
 export function localISODate(date: Date = new Date()): string {
   const y = date.getFullYear();

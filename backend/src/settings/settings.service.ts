@@ -4,6 +4,14 @@ import { encryptSecret, decryptSecret } from "./crypto.js";
 
 const PIN_HASH_KEY = "pin_hash";
 const OPENAI_API_KEY = "openai_api_key";
+const DAILY_GOAL_KEY = "daily_goal";
+const MAINTENANCE_KEY = "maintenance_calories";
+
+export const DEFAULT_DAILY_GOAL = 2000;
+export const DEFAULT_MAINTENANCE_CALORIES = 2500;
+
+/** Energy density of body tissue: kcal per kg, the usual 7700 rule of thumb. */
+export const KCAL_PER_KG = 7700;
 
 const cache = new Map<string, string>();
 let loaded = false;
@@ -65,6 +73,29 @@ export async function getAiKeyStatus(): Promise<AiKeyStatus> {
   if (!key) return { configured: false, preview: null, source: null };
   const preview = key.length <= 8 ? "…" : `${key.slice(0, 3)}…${key.slice(-4)}`;
   return { configured: true, preview, source: stored ? "db" : "env" };
+}
+
+export interface Goals {
+  dailyGoal: number;
+  maintenanceCalories: number;
+}
+
+async function readNumber(key: string, fallback: number): Promise<number> {
+  const raw = await readRaw(key);
+  const n = Number(raw);
+  return raw !== undefined && Number.isFinite(n) && n > 0 ? Math.round(n) : fallback;
+}
+
+export async function getGoals(): Promise<Goals> {
+  return {
+    dailyGoal: await readNumber(DAILY_GOAL_KEY, DEFAULT_DAILY_GOAL),
+    maintenanceCalories: await readNumber(MAINTENANCE_KEY, DEFAULT_MAINTENANCE_CALORIES),
+  };
+}
+
+export async function setGoals(goals: Goals): Promise<void> {
+  await write(DAILY_GOAL_KEY, String(goals.dailyGoal));
+  await write(MAINTENANCE_KEY, String(goals.maintenanceCalories));
 }
 
 export function _resetCacheForTests(): void {

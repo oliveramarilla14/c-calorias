@@ -8,6 +8,8 @@ import {
   setPinHash,
   setOpenAiApiKey,
   clearOpenAiApiKey,
+  getGoals,
+  setGoals,
 } from "./settings.service.js";
 
 const pinLimiter = rateLimit({
@@ -25,10 +27,23 @@ const pinSchema = z.object({
 
 const aiKeySchema = z.object({ apiKey: z.string().trim().min(20) });
 
+const calorieTarget = z.coerce.number().int().min(500).max(10000);
+const goalsSchema = z.object({ dailyGoal: calorieTarget, maintenanceCalories: calorieTarget });
+
 export const settingsRouter = Router();
 
 settingsRouter.get("/", async (_req, res) => {
-  res.json({ ai: await getAiKeyStatus() });
+  res.json({ ai: await getAiKeyStatus(), goals: await getGoals() });
+});
+
+settingsRouter.put("/goals", async (req, res) => {
+  const parsed = goalsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_goals" });
+    return;
+  }
+  await setGoals(parsed.data);
+  res.json({ ai: await getAiKeyStatus(), goals: await getGoals() });
 });
 
 settingsRouter.put("/pin", pinLimiter, async (req, res) => {
