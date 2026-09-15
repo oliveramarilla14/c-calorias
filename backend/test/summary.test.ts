@@ -107,6 +107,20 @@ describe("weekly summary week navigation and deficit", () => {
     expect(res.body.deficitKg).toBe(0.79); // 6100 / 7700
   });
 
+  it("counts the local day, not the UTC one, late on a Monday night", async () => {
+    // 01:00 UTC Tuesday is still 22:00 Monday in Asunción: one day elapsed, not two.
+    vi.setSystemTime(new Date("2026-09-15T01:00:00Z"));
+    const { agent } = await authedAgent();
+    await agent.post("/api/meals").send({ type: "Cena", description: "a", calories: 2020, consumedAt: "2026-09-14" });
+
+    const res = await agent.get("/api/summary/weekly").expect(200);
+    expect(res.body.weekStart).toBe("2026-09-14");
+    expect(res.body.daysCounted).toBe(1);
+    expect(res.body.maintenanceTarget).toBe(2500);
+    expect(res.body.deficit).toBe(480);
+    expect(res.body.weekAvg).toBe(2020);
+  });
+
   it("reports a surplus as a negative deficit", async () => {
     const { agent } = await authedAgent();
     await agent.post("/api/meals").send({ type: "Cena", description: "a", calories: 9000, consumedAt: "2026-08-24" });

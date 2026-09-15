@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { getWeekRange, weeksAgoRange, toISODate, daysElapsedInWeek } from "../src/week.js";
+import { describe, it, expect, afterEach } from "vitest";
+import { getWeekRange, weeksAgoRange, toISODate, daysElapsedInWeek, appToday } from "../src/week.js";
 
 describe("getWeekRange", () => {
   it("returns Monday-Sunday for a Wednesday", () => {
@@ -38,5 +38,33 @@ describe("daysElapsedInWeek", () => {
   });
   it("is 7 for Sunday", () => {
     expect(daysElapsedInWeek(new Date("2026-08-30T10:00:00Z"))).toBe(7);
+  });
+});
+
+describe("appToday", () => {
+  const original = process.env.APP_TIMEZONE;
+  afterEach(() => {
+    if (original === undefined) delete process.env.APP_TIMEZONE;
+    else process.env.APP_TIMEZONE = original;
+  });
+
+  it("is still Monday late on a Monday night in Asunción", () => {
+    process.env.APP_TIMEZONE = "America/Asuncion";
+    // 01:30 UTC Tuesday = 22:30 Monday in Asunción (UTC-3).
+    const today = appToday(new Date("2026-09-15T01:30:00Z"));
+    expect(toISODate(today)).toBe("2026-09-14");
+    expect(daysElapsedInWeek(today)).toBe(1);
+  });
+
+  it("rolls over once the local day changes", () => {
+    process.env.APP_TIMEZONE = "America/Asuncion";
+    const today = appToday(new Date("2026-09-15T04:00:00Z")); // 01:00 Tuesday local
+    expect(toISODate(today)).toBe("2026-09-15");
+    expect(daysElapsedInWeek(today)).toBe(2);
+  });
+
+  it("falls back to UTC for an unknown time zone", () => {
+    process.env.APP_TIMEZONE = "Not/AZone";
+    expect(toISODate(appToday(new Date("2026-09-15T01:30:00Z")))).toBe("2026-09-15");
   });
 });

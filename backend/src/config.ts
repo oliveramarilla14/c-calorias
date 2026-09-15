@@ -17,6 +17,9 @@ export const config = {
   get sessionSecret() {
     return required("SESSION_SECRET");
   },
+  get appTimeZone() {
+    return process.env.APP_TIMEZONE || "America/Asuncion";
+  },
   get dailyCalorieGoal() {
     return Number(process.env.DAILY_CALORIE_GOAL ?? 2000);
   },

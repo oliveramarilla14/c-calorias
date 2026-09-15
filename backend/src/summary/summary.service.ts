@@ -1,26 +1,28 @@
 import { prisma } from "../db.js";
-import { weeksAgoRange, toISODate, daysElapsedInWeek } from "../week.js";
+import { weeksAgoRange, toISODate, daysElapsedInWeek, appToday } from "../week.js";
 import { MEAL_TYPES } from "../meals/meals.service.js";
 import { getGoals, KCAL_PER_KG } from "../settings/settings.service.js";
 
 export async function getWeeklySummary(weeksCount: number, now: Date = new Date(), weekOffset = 0) {
   const clamped = Math.max(1, Math.min(12, weeksCount));
   const offset = Math.max(0, Math.min(520, Math.round(weekOffset)));
-  const viewedWeek = weeksAgoRange(now, offset);
+  // Weeks and elapsed days follow the user's calendar day, not the server's UTC one.
+  const today = appToday(now);
+  const viewedWeek = weeksAgoRange(today, offset);
 
   // A past week is always 7 days; the ongoing one only counts the days elapsed
   // so far, so its average and deficit aren't diluted by days that haven't happened.
-  const daysCounted = offset === 0 ? daysElapsedInWeek(now) : 7;
+  const daysCounted = offset === 0 ? daysElapsedInWeek(today) : 7;
 
   const weeks: { weekStart: string; avg: number }[] = [];
   for (let i = clamped - 1; i >= 0; i--) {
-    const { start, end } = weeksAgoRange(now, offset + i);
+    const { start, end } = weeksAgoRange(today, offset + i);
     const agg = await prisma.meal.aggregate({
       _sum: { calories: true },
       where: { consumedAt: { gte: start, lte: end } },
     });
     const total = agg._sum.calories ?? 0;
-    const days = offset + i === 0 ? daysElapsedInWeek(now) : 7;
+    const days = offset + i === 0 ? daysElapsedInWeek(today) : 7;
     weeks.push({ weekStart: toISODate(start), avg: Math.round(total / days) });
   }
 

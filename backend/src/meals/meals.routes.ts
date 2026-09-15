@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { getWeekRange, toISODate } from "../week.js";
+import { getWeekRange, toISODate, appToday } from "../week.js";
 import {
   MEAL_TYPES,
   listMealsByDate,
@@ -27,7 +27,7 @@ mealsRouter.get("/", async (req, res) => {
     res.json(meals);
     return;
   }
-  const date = typeof req.query.date === "string" ? req.query.date : toISODate(new Date());
+  const date = typeof req.query.date === "string" ? req.query.date : toISODate(appToday());
   const meals = await listMealsByDate(date);
   res.json(meals);
 });
