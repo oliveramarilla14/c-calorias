@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, formatLongDate, localISODate } from "./format";
+import { formatDate, formatShortDate, localISODate } from "./format";
 
 describe("formatDate", () => {
   it("turns an ISO date into dd/mm/yyyy", () => {
@@ -8,10 +8,10 @@ describe("formatDate", () => {
   });
 });
 
-describe("formatLongDate", () => {
-  it("spells out weekday, day and month in Spanish", () => {
-    expect(formatLongDate("2026-10-07")).toBe("Miércoles 7 de octubre");
-    expect(formatLongDate("2026-01-05")).toBe("Lunes 5 de enero");
+describe("formatShortDate", () => {
+  it("abbreviates weekday and month in Spanish", () => {
+    expect(formatShortDate("2026-10-07")).toBe("Mié 7 oct");
+    expect(formatShortDate("2026-01-05")).toBe("Lun 5 ene");
   });
 });
 

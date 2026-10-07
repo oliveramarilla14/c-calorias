@@ -5,7 +5,7 @@ import { MealListItem } from "../components/MealListItem";
 import { MealSheet } from "../components/MealSheet";
 import { AiMealCapture, MicIcon } from "../components/AiMealCapture";
 import { useBackButtonClose } from "../useBackButtonClose";
-import { formatDate, formatLongDate, localISODate, addDays } from "../format";
+import { formatDate, formatShortDate, localISODate, addDays } from "../format";
 
 const dayNavBtnStyle: React.CSSProperties = {
   minWidth: 36,
@@ -100,7 +100,7 @@ export function TodayScreen({
             <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>
               {isToday ? "Consumido hoy" : "Consumido"}
             </div>
-            <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2 }}>{formatLongDate(selectedDate)}</div>
+            <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2 }}>{formatShortDate(selectedDate)}</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <button

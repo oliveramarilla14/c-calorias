@@ -13,14 +13,13 @@ export function formatKg(n: number): string {
   return n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-const WEEKDAYS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-const MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
-/** "2026-10-07" -> "Miércoles 7 de octubre" (local calendar date). */
-export function formatLongDate(iso: string): string {
+/** "2026-10-07" -> "Mié 7 oct" (local calendar date). */
+export function formatShortDate(iso: string): string {
   const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
-  const weekday = WEEKDAYS[new Date(y, m - 1, d).getDay()];
-  return `${weekday[0].toUpperCase()}${weekday.slice(1)} ${d} de ${MONTHS[m - 1]}`;
+  return `${WEEKDAYS[new Date(y, m - 1, d).getDay()]} ${d} ${MONTHS[m - 1]}`;
 }
 
 /** Local calendar date as YYYY-MM-DD (not UTC, unlike Date#toISOString). */
