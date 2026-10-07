@@ -19,6 +19,7 @@ export interface MealInput {
   description: string;
   calories: number;
   photoUrl?: string | null;
+  offDiet?: boolean;
   consumedAt: string;
 }
 

@@ -167,11 +167,14 @@ describe("getWeeklySummary (pinned date)", () => {
   it("computes totals for the week containing the given date", async () => {
     const { agent } = await authedAgent();
     await agent.post("/api/meals").send({ type: "Desayuno", description: "a", calories: 400, consumedAt: "2026-08-24" });
-    await agent.post("/api/meals").send({ type: "Almuerzo", description: "b", calories: 700, consumedAt: "2026-08-26" });
+    await agent.post("/api/meals").send({ type: "Almuerzo", description: "b", calories: 700, offDiet: true, consumedAt: "2026-08-26" });
+    // off-diet meal outside the week must not count
+    await agent.post("/api/meals").send({ type: "Cena", description: "c", calories: 900, offDiet: true, consumedAt: "2026-08-10" });
 
     const summary = await getWeeklySummary(3, new Date("2026-08-26T12:00:00Z"));
     expect(summary.weekStart).toBe("2026-08-24");
     expect(summary.weekTotal).toBe(1100);
     expect(summary.weekAvg).toBe(Math.round(1100 / 3)); // Wednesday = day 3 of its week
+    expect(summary.offDietCount).toBe(1);
   });
 });

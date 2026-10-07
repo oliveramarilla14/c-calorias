@@ -1,10 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, localISODate } from "./format";
+import { formatDate, formatLongDate, localISODate } from "./format";
 
 describe("formatDate", () => {
   it("turns an ISO date into dd/mm/yyyy", () => {
     expect(formatDate("2026-08-28")).toBe("28/08/2026");
     expect(formatDate("2026-08-28T23:15:00.000Z")).toBe("28/08/2026");
+  });
+});
+
+describe("formatLongDate", () => {
+  it("spells out weekday, day and month in Spanish", () => {
+    expect(formatLongDate("2026-10-07")).toBe("Miércoles 7 de octubre");
+    expect(formatLongDate("2026-01-05")).toBe("Lunes 5 de enero");
   });
 });
 

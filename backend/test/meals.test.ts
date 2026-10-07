@@ -47,6 +47,35 @@ describe("Meals CRUD", () => {
     expect(listAfterDelete.body).toHaveLength(0);
   });
 
+  it("stores the off-diet flag, defaulting to false", async () => {
+    const { agent } = await authedAgent();
+    const plain = await agent.post("/api/meals").send({
+      type: "Almuerzo",
+      description: "Ensalada",
+      calories: 300,
+      consumedAt: "2026-08-28",
+    });
+    expect(plain.body.offDiet).toBe(false);
+
+    const cheat = await agent.post("/api/meals").send({
+      type: "Snack",
+      description: "Alfajor",
+      calories: 250,
+      offDiet: true,
+      consumedAt: "2026-08-28",
+    });
+    expect(cheat.body.offDiet).toBe(true);
+
+    const update = await agent.put(`/api/meals/${cheat.body.id}`).send({
+      type: "Snack",
+      description: "Alfajor",
+      calories: 250,
+      offDiet: false,
+      consumedAt: "2026-08-28",
+    });
+    expect(update.body.offDiet).toBe(false);
+  });
+
   it("rejects invalid calories with 400", async () => {
     const { agent } = await authedAgent();
     const res = await agent.post("/api/meals").send({

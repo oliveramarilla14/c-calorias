@@ -15,6 +15,7 @@ const mealBodySchema = z.object({
   description: z.string().trim().min(1),
   calories: z.number().int().positive(),
   photoUrl: z.string().url().nullable().optional(),
+  offDiet: z.boolean().optional(),
   consumedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 

@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { api } from "../api";
 import type { Meal, AiMealDraft } from "../types";
 import { MealListItem } from "../components/MealListItem";
 import { MealSheet } from "../components/MealSheet";
 import { AiMealCapture, MicIcon } from "../components/AiMealCapture";
 import { useBackButtonClose } from "../useBackButtonClose";
-import { formatDate, localISODate, addDays } from "../format";
+import { formatDate, formatLongDate, localISODate, addDays } from "../format";
 
 const dayNavBtnStyle: React.CSSProperties = {
   minWidth: 36,
@@ -36,9 +36,33 @@ export function TodayScreen({
   const [editing, setEditing] = useState<Meal | null>(null);
   const [aiCaptureOpen, setAiCaptureOpen] = useState(false);
   const [aiDraft, setAiDraft] = useState<AiMealDraft | null>(null);
-  const [selectedDate, setSelectedDate] = useState(() => localISODate());
+  const [today, setToday] = useState(() => localISODate());
+  const [selectedDate, setSelectedDate] = useState(today);
+  const todayRef = useRef(today);
 
-  const isToday = selectedDate === localISODate();
+  // The app often stays open overnight (PWA in the background). When the
+  // calendar day changes, refresh "today" and, if the user was looking at
+  // the old today, follow it to the new one.
+  useEffect(() => {
+    function syncToday() {
+      const now = localISODate();
+      const prev = todayRef.current;
+      if (now === prev) return;
+      todayRef.current = now;
+      setToday(now);
+      setSelectedDate((d) => (d === prev ? now : d));
+    }
+    document.addEventListener("visibilitychange", syncToday);
+    window.addEventListener("focus", syncToday);
+    const interval = window.setInterval(syncToday, 60_000);
+    return () => {
+      document.removeEventListener("visibilitychange", syncToday);
+      window.removeEventListener("focus", syncToday);
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  const isToday = selectedDate === today;
 
   const reload = useCallback(async () => {
     setMeals(await api.getMealsByDate(selectedDate));
@@ -72,8 +96,11 @@ export function TodayScreen({
     <div>
       <section style={{ padding: "20px 20px 18px", borderBottom: "2px solid var(--color-divider)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>
-            {isToday ? "Consumido hoy" : "Consumido"}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>
+              {isToday ? "Consumido hoy" : "Consumido"}
+            </div>
+            <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2 }}>{formatLongDate(selectedDate)}</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <button
@@ -87,8 +114,8 @@ export function TodayScreen({
             <input
               type="date"
               value={selectedDate}
-              max={localISODate()}
-              onChange={(e) => setSelectedDate(e.target.value || localISODate())}
+              max={today}
+              onChange={(e) => setSelectedDate(e.target.value || today)}
               style={{
                 minHeight: 36,
                 padding: "0 10px",

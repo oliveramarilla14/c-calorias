@@ -36,6 +36,7 @@ export async function getWeeklySummary(weeksCount: number, now: Date = new Date(
   const goals = await getGoals();
   const maintenanceTarget = goals.maintenanceCalories * daysCounted;
   const deficit = maintenanceTarget - weekTotal;
+  const offDietCount = weekMeals.filter((m) => m.offDiet).length;
 
   const byTypeMap = new Map<string, { total: number; count: number }>();
   for (const meal of weekMeals) {
@@ -85,6 +86,7 @@ export async function getWeeklySummary(weeksCount: number, now: Date = new Date(
     maintenanceTarget,
     deficit,
     deficitKg: Math.round((deficit / KCAL_PER_KG) * 100) / 100,
+    offDietCount,
     weeks,
     byType,
     days,

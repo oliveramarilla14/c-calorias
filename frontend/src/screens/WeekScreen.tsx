@@ -292,6 +292,12 @@ export function WeekScreen({ weeksCount }: { weeksCount: number }) {
           </div>
         </div>
         <DeficitCard summary={summary} />
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--color-neutral-300)" }}>
+          <span style={{ fontWeight: 800, fontSize: 26, color: summary.offDietCount > 0 ? "var(--color-accent)" : "var(--color-text)" }}>{summary.offDietCount}</span>
+          <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)" }}>
+            {summary.offDietCount === 1 ? "comida fuera de dieta" : "comidas fuera de dieta"}
+          </span>
+        </div>
       </section>
 
       <section style={{ padding: "18px 20px 22px", borderBottom: "2px solid var(--color-divider)" }}>

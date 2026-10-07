@@ -27,6 +27,7 @@ export function MealSheet({
   const [type, setType] = useState<MealType>(meal?.type ?? draft?.type ?? defaultMealTypeForNow());
   const [description, setDescription] = useState(meal?.description ?? draft?.description ?? "");
   const [calories, setCalories] = useState(meal ? String(meal.calories) : draft ? String(draft.calories) : "");
+  const [offDiet, setOffDiet] = useState(meal?.offDiet ?? false);
   const [date, setDate] = useState(meal?.consumedAt?.slice(0, 10) ?? defaultDate ?? localISODate());
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
@@ -76,6 +77,7 @@ export function MealSheet({
       description: description.trim(),
       calories: parsedCalories,
       photoUrl,
+      offDiet,
       consumedAt: date,
     };
     try {
@@ -142,6 +144,34 @@ export function MealSheet({
             style={{ width: "100%", minHeight: 56, fontSize: 28, fontWeight: 800, background: "var(--color-surface)", color: "var(--color-text)", border: "2px solid var(--color-divider)" }}
           />
         </label>
+        <div>
+          <span style={{ display: "block", fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 7 }}>Dieta</span>
+          <div role="radiogroup" aria-label="Dieta" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", border: "2px solid var(--color-divider)" }}>
+            {([false, true] as const).map((value) => {
+              const selected = offDiet === value;
+              return (
+                <button
+                  key={String(value)}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setOffDiet(value)}
+                  style={{
+                    minHeight: 48,
+                    border: 0,
+                    fontWeight: 800,
+                    fontSize: 14,
+                    cursor: "pointer",
+                    background: selected ? (value ? "var(--color-accent)" : "var(--color-text)") : "var(--color-surface)",
+                    color: selected ? "var(--color-bg)" : "var(--color-muted)",
+                  }}
+                >
+                  {value ? "Fuera de dieta" : "Permitida"}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <div>
           <span style={{ display: "block", fontSize: 11, fontWeight: 600, textTransform: "uppercase", color: "var(--color-muted)", marginBottom: 7 }}>Foto (opcional)</span>
           <label style={{ display: "flex", alignItems: "center", gap: 14, border: "2px solid var(--color-divider)", padding: 12, cursor: "pointer" }}>

@@ -30,6 +30,11 @@ export function MealListItem({ meal, onEdit, onDelete }: { meal: Meal; onEdit: (
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.09em", textTransform: "uppercase", color: "var(--color-accent-700)" }}>
           {meal.type}
+          {meal.offDiet && (
+            <span style={{ marginLeft: 8, padding: "1px 6px", background: "var(--color-accent)", color: "var(--color-bg)", letterSpacing: "0.05em" }}>
+              Fuera de dieta
+            </span>
+          )}
         </div>
         <div style={{ fontWeight: 500, lineHeight: 1.3, marginTop: 2 }}>{meal.description}</div>
         <div style={{ display: "flex", gap: 2, marginTop: 6, marginLeft: -4 }}>

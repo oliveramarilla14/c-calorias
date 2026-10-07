@@ -7,6 +7,7 @@ export interface Meal {
   description: string;
   calories: number;
   photoUrl: string | null;
+  offDiet: boolean;
   consumedAt: string;
 }
 
@@ -59,6 +60,7 @@ export interface WeeklySummary {
   /** Positive = ate under maintenance over the counted days. */
   deficit: number;
   deficitKg: number;
+  offDietCount: number;
   weeks: { weekStart: string; avg: number }[];
   byType: { type: MealType; avg: number; count: number }[];
   days: { date: string; total: number; weightKg: string | null }[];

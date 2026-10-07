@@ -8,6 +8,7 @@ export interface MealInput {
   description: string;
   calories: number;
   photoUrl?: string | null;
+  offDiet?: boolean;
   consumedAt: string; // YYYY-MM-DD
 }
 
@@ -32,6 +33,7 @@ export function createMeal(input: MealInput) {
       description: input.description,
       calories: input.calories,
       photoUrl: input.photoUrl ?? null,
+      offDiet: input.offDiet ?? false,
       consumedAt: new Date(input.consumedAt),
     },
   });
@@ -45,6 +47,7 @@ export function updateMeal(id: number, input: MealInput) {
       description: input.description,
       calories: input.calories,
       photoUrl: input.photoUrl ?? null,
+      offDiet: input.offDiet ?? false,
       consumedAt: new Date(input.consumedAt),
     },
   });
