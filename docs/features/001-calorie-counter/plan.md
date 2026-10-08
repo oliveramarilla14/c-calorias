@@ -8,7 +8,7 @@
 
 **Tech Stack:** TypeScript everywhere. Backend: Express 4, Prisma ORM, PostgreSQL, zod (validation), bcryptjs + jsonwebtoken (auth), express-rate-limit, multer + @aws-sdk/client-s3 (R2 photo upload), Vitest + Supertest (tests). Frontend: React 18, Vite, plain CSS (ported "Modernist" design tokens, no UI framework), fetch-based API client.
 
-**Spec:** `docs/superpowers/specs/2026-08-28-contador-calorias-design.md`
+**Spec:** `docs/features/001-calorie-counter/spec.md`
 **Visual design reference (Claude Design mock):** `PLATO.dc.html` from Claude Design project `ef3ff5de-f121-44e8-b1b2-653d9a92afb4` (fetched and inlined into this plan's frontend tasks — dark "Modernist" theme, accent `#ec3013`, Archivo font, 0 border-radius, 2px dividers, bottom tab nav with Hoy/Semana/Peso, full-screen sheet modals for the meal and weight forms).
 
 ## Global Constraints

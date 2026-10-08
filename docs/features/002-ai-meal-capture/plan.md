@@ -8,7 +8,7 @@
 
 **Tech Stack:** Express + zod + multer (backend, existing patterns), `openai` npm SDK (new), React 19 + `MediaRecorder` Web API (frontend, existing patterns).
 
-**Spec:** `docs/superpowers/specs/2026-08-28-ai-meal-capture-design.md`
+**Spec:** `docs/features/002-ai-meal-capture/spec.md`
 
 ## Global Constraints
 
