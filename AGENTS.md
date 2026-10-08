@@ -61,6 +61,10 @@ npm run migrate               # migraciones (Prisma)
   (sistema de diseño PLATO, sin Tailwind ni shadcn/ui). En producción el
   backend sirve el build del frontend: un solo servicio en Railway.
 - **Deploy:** Railway con Nixpacks (`railway.json`).
-- **Versión:** la app la muestra junto al logo, desde
-  `frontend/src/version.ts` (`APP_VERSION`). Subila antes de cada push
-  con cambios visibles (patch para fixes, minor para features).
+- **Versión** (ADR-0006 del Brain):
+  cada push a `main` sube la versión. La fuente es `VERSION` en la raíz;
+  Vite la inyecta y la app la muestra junto al logo
+  (`frontend/src/version.ts`). Cada push lleva `VERSION` actualizado,
+  una entrada en `CHANGELOG.md` (1 a 4 puntos en lenguaje de usuario),
+  el commit `chore: release vX.Y.Z`, el tag anotado `vX.Y.Z` y
+  `git push --follow-tags`.
