@@ -24,13 +24,12 @@ En lo específico de este proyecto, este archivo le gana al Brain.
 ## Comandos
 
 ```bash
-docker compose up -d          # PostgreSQL local
-npm --prefix backend run dev  # API (tsx watch)
-npm --prefix frontend run dev # web (Vite)
-npm --prefix backend test     # tests del backend
-npx --prefix frontend vitest run  # tests del frontend
-npm --prefix frontend run lint    # lint (oxlint)
-npm run migrate               # migraciones (Prisma)
+make dev        # PostgreSQL (docker-compose.dev.yml) + API (tsx watch) + web (Vite)
+make test       # tests del backend y del frontend (vitest)
+make lint       # lint del frontend (oxlint)
+make migrate    # migraciones (prisma migrate deploy)
+make generate   # cliente de Prisma
+make build      # build de producción (frontend + backend)
 ```
 
 ## Reglas que no se negocian
