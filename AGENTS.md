@@ -59,6 +59,11 @@ make build      # build de producción (frontend + backend)
 - **Frontend:** React + Vite + TypeScript en `frontend/`, CSS propio
   (sistema de diseño PLATO, sin Tailwind ni shadcn/ui). En producción el
   backend sirve el build del frontend: un solo servicio en Railway.
+- **Configuración:** variables de entorno en `backend/.env` (desde
+  `backend/.env.example`), no las 4 de `03-Architecture/Configuration`
+  del Brain. PIN, API key de OpenAI y objetivos se pueden cambiar desde
+  la app (tabla `settings`); la variable de entorno queda como valor
+  inicial. R2 y la sesión siguen solo por entorno.
 - **Deploy:** Railway con Nixpacks (`railway.json`).
 - **Versión** (ADR-0006 del Brain):
   cada push a `main` sube la versión. La fuente es `VERSION` en la raíz;

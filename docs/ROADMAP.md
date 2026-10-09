@@ -42,6 +42,8 @@ historial de git; el proyecto no tenía roadmap. Sin specs, directo en
 - [rediseño] Sesiones en la base en vez de cookie JWT (ADR-0004 del
   Brain) (2026-10-07)
 - [idea] Script `test` en `frontend/package.json` (2026-10-07)
+- [idea] Linter para el backend; hoy `make lint` solo revisa el frontend (2026-10-08)
+- [rediseño] Configuración según 03-Architecture/Configuration del Brain: `.env.example` en la raíz con las 4 variables y el resto en el módulo de configuración (2026-10-08)
 
 ## Descartado
 
